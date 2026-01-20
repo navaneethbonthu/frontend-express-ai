@@ -1,0 +1,72 @@
+<div class="container product-detail-container">
+    <nav class="breadcrumb">
+        <a routerLink="/products">Products</a>
+        <span class="separator">/</span>
+        <span class="current">{{ product().name }}</span>
+    </nav>
+
+    <div class="product-layout">
+        <div class="product-gallery">
+            <div class="main-image">
+                <img [ngSrc]="product().image" [alt]="product().name" width="600" height="600" priority />
+            </div>
+            <div class="thumbnail-list">
+                @for (thumb of [1,2,3]; track thumb) {
+                <div class="thumbnail" [class.active]="thumb === 1">
+                    <img [ngSrc]="product().image" [alt]="product().name" width="100" height="100" />
+                </div>
+                }
+            </div>
+        </div>
+
+        <div class="product-info">
+            <span class="product-category">{{ product().category }}</span>
+            <h1 class="product-name">{{ product().name }}</h1>
+
+            <div class="rating-row">
+                <div class="stars" aria-hidden="true">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star-half">★</span>
+                </div>
+                <span class="review-count">(128 reviews)</span>
+                <span class="sr-only">4.5 out of 5 stars</span>
+            </div>
+
+            <div class="product-price">{{ product().price | currency }}</div>
+
+            <p class="product-description">
+                {{ product().description }}
+            </p>
+
+            <div class="purchase-options">
+                <div class="quantity-selector">
+                    <button class="btn btn-outline" (click)="updateQuantity(-1)"
+                        aria-label="Decrease quantity">-</button>
+                    <span class="quantity">{{ quantity() }}</span>
+                    <button class="btn btn-outline" (click)="updateQuantity(1)"
+                        aria-label="Increase quantity">+</button>
+                </div>
+                <button class="btn btn-primary add-to-cart-btn">Add to Cart</button>
+            </div>
+
+            <div class="product-meta">
+                <div class="meta-item">
+                    <span class="label">Availability:</span>
+                    <span class="value success">In Stock</span>
+                </div>
+                <div class="meta-item">
+                    <span class="label">SKU:</span>
+                    <span class="value">SS-12345</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="related-products">
+        <h2 class="section-title">Related Products</h2>
+        <!-- Related products list would go here -->
+    </section>
+</div>
