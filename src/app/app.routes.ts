@@ -6,20 +6,7 @@ export const routes: Routes = [
     path: 'products',
     loadComponent: () => import('./components/product-list/product-list.component'),
   },
-  {
-    path: 'products/:id',
-    loadComponent: () =>
-      import('./components/product-detail/product-detail.component').then(
-        (m) => m.ProductDetailComponent
-      ),
-  },
-  {
-    path: 'categories',
-    loadComponent: () =>
-      import('./components/category-list/category-list.component').then(
-        (m) => m.CategoryListComponent
-      ),
-  },
+
   {
     path: 'cart',
     loadComponent: () => import('./components/cart/cart.component').then((m) => m.CartComponent),
@@ -33,7 +20,6 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () => import('./components/auth/auth.component').then((m) => m.AuthComponent),
   },
-  { path: 'admin', loadChildren: () => import('./admin/admin.routes').then((m) => m.ADMIN_ROUTES) },
   {
     path: '**',
     loadComponent: () =>

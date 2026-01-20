@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { ApiStatus, Product, ProductResponse } from './interfaces';
+import { ApiStatus, Category, Product, ProductResponse } from './interfaces';
 import { catchError, EMPTY, Observable } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -8,7 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   providedIn: 'root',
 })
 export class ProductListService {
-  private API = 'http://localhost:3000/api/products';
+  private API = 'http://localhost:3000/api';
 
   // dependencies
   private readonly http = inject(HttpClient);
@@ -30,6 +30,11 @@ export class ProductListService {
     apiStatus: 'idle',
   });
 
+  private categories = signal<{ data: Category[]; apiStatus: ApiStatus }>({
+    data: [],
+    apiStatus: 'idle',
+  });
+
   // selectors
   public readonly _Products = computed(() => this.products().data);
   public readonly _TotalItems = computed(() => this.products().totalItems);
@@ -38,12 +43,15 @@ export class ProductListService {
   public readonly _ItemsPerPage = computed(() => this.products().itemsPerPage);
   public readonly _ApiStatus = computed(() => this.products().apiStatus);
 
+  public readonly _Categories = computed(() => this.categories().data);
+  public readonly _CategoriesApiStatus = computed(() => this.categories().apiStatus);
+
   getAllProducts() {
     this.products.update((val) => ({ ...val, apiStatus: 'loading' }));
     this.http
-      .get<ProductResponse>(this.API)
+      .get<ProductResponse>(`${this.API}/products`)
       .pipe(
-        takeUntilDestroyed(),
+        // takeUntilDestroyed(),
         catchError(() => {
           this.products.update((val) => ({ ...val, apiStatus: 'error' }));
           return EMPTY;
@@ -59,6 +67,23 @@ export class ProductListService {
           apiStatus: 'success',
         }));
         console.log(this._Products(), response);
+      });
+  }
+
+  getAllCategories() {
+    this.http
+      .get<Category[]>(`${this.API}/categories`)
+      .pipe(
+        catchError((err) => {
+          catchError(() => {
+            this.categories.update((val) => ({ ...val, apiStatus: 'error' }));
+            return EMPTY;
+          });
+          return EMPTY;
+        })
+      )
+      .subscribe((response) => {
+        this.categories.update(() => ({ data: response, apiStatus: 'success' }));
       });
   }
 }

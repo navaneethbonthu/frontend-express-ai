@@ -2,31 +2,35 @@
     <div class="header-section">
         <h1 class="section-title">Our Products</h1>
         <div class="filters">
-            @for (category of categories(); track category) {
-            <button class="btn btn-outline" [class.active]="selectedCategory() === category"
-                (click)="filterByCategory(category)">
-                {{ category }}
-            </button>
-            }
+            <select class="form-select" (change)="onCategoryChange($event)">
+                <option value="">All Categories</option>
+                @for (category of productListService._Categories(); track category.id) {
+                <option [value]="category.id" [selected]="selectedCategory() === category.id">
+                    {{ category.name }}
+                </option>
+                }
+            </select>
         </div>
     </div>
 
     <div class="product-grid">
-        @for (product of filteredProducts(); track product.id) {
+        @for (product of productListService._Products(); track product.id) {
         <div class="card product-card" [routerLink]="['/products', product.id]">
             <div class="product-image">
-                <img [ngSrc]="product.imageUrl" [alt]="product.name" width="300" height="300"
-                    [priority]="product.id <= 2" />
+                <img [ngSrc]="product.imageUrl" [alt]="product.name" width="300" height="300" />
                 <button class="btn btn-primary add-to-cart-quick" (click)="$event.stopPropagation()"
                     aria-label="Add to Cart">
                     <img src="/assets/icons/cart-plus.svg" alt="" width="20" height="20" />
                 </button>
             </div>
             <div class="product-info">
-                <span class="product-category">{{ product.categoryId }}</span>
+                <span class="product-category"> {{ product.category.name || 'Uncategorized' }}</span>
                 <h3 class="product-name">{{ product.name }}</h3>
                 <div class="product-footer">
                     <span class="product-price">{{ product.price | currency }}</span>
+                    <button class="btn btn-primary add-to-cart">
+                        Add to Cart
+                    </button>
                 </div>
             </div>
         </div>

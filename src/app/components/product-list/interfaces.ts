@@ -1,7 +1,10 @@
 export interface Product {
   id: number;
   name: string;
-  category: string;
+  category: {
+    id: string;
+    name: string;
+  };
   price: number;
   rating: number;
   imageUrl: string;
@@ -16,5 +19,14 @@ export interface ProductResponse {
     currentPage: number;
     totalPages: number;
     itemsPerPage: number;
+  };
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  createdAt: string; // Added this field based on your JSON
+  _count?: {
+    products: number;
   };
 }

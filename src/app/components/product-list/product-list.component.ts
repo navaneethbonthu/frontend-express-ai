@@ -1,12 +1,12 @@
 import { Component, ChangeDetectionStrategy, signal, inject, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CurrencyPipe, NgOptimizedImage } from '@angular/common';
+import { CurrencyPipe, JsonPipe, NgOptimizedImage } from '@angular/common';
 import { ProductListService } from './product-list.service';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, NgOptimizedImage],
+  imports: [RouterLink, CurrencyPipe, NgOptimizedImage, JsonPipe],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -14,28 +14,16 @@ import { ProductListService } from './product-list.service';
 export default class ProductListComponent {
   protected productListService = inject(ProductListService);
 
-  selectedCategory = signal<string>('All');
-
-  categories = computed(() => {
-    const products = this.productListService._Products();
-    const cats = new Set(products.map((p) => p.category));
-    return ['All', ...Array.from(cats)];
-  });
-
-  filteredProducts = computed(() => {
-    const products = this.productListService._Products();
-    const category = this.selectedCategory();
-    if (category === 'All') {
-      return products;
-    }
-    return products.filter((p) => p.category === category);
-  });
+  category = signal<string>('All');
+  selectedCategory = computed(() => this.category());
 
   constructor() {
     this.productListService.getAllProducts();
+    this.productListService.getAllCategories();
   }
 
-  filterByCategory(category: string) {
-    this.selectedCategory.set(category);
+  onCategoryChange(e: Event) {
+    const category = (e.target as HTMLSelectElement).value;
+    this.category.set(category);
   }
 }
