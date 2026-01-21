@@ -15,20 +15,23 @@
 
     <div class="product-grid">
         @for (product of productListService._Products(); track product.id) {
-        <div class="card product-card" [routerLink]="['/products', product.id]">
+        <div class="card product-card">
+            <!-- [routerLink]="['/products', product.id]" -->
             <div class="product-image">
-                <img [ngSrc]="product.imageUrl" [alt]="product.name" width="300" height="300" />
+                <img [ngSrc]="product.imageUrl || '/assets/images/placeholder.png'" [alt]="product.name" width="300"
+                    height="300" priority />
                 <button class="btn btn-primary add-to-cart-quick" (click)="$event.stopPropagation()"
                     aria-label="Add to Cart">
                     <img src="/assets/icons/cart-plus.svg" alt="" width="20" height="20" />
                 </button>
             </div>
             <div class="product-info">
-                <span class="product-category"> {{ product.category.name || 'Uncategorized' }}</span>
+                <span class="product-category"> {{ product.category?.name || 'Uncategorized' }}</span>
                 <h3 class="product-name">{{ product.name }}</h3>
                 <div class="product-footer">
-                    <span class="product-price">{{ product.price | currency }}</span>
-                    <button class="btn btn-primary add-to-cart">
+                    <span class="product-price">{{ product.price | currency: 'USD' }}</span>
+                    <app-star-ratting [value]="1" [readOnly]="false"></app-star-ratting>
+                    <button class="btn btn-primary add-to-cart" (click)="addToCart(product)">
                         Add to Cart
                     </button>
                 </div>

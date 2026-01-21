@@ -1,0 +1,14 @@
+ span {
+     font-size: 30px;
+     cursor: pointer;
+     color: #ccc;
+ }
+
+ span.filled {
+     color: gold;
+ }
+
+ span.disabled {
+     pointer-events: none;
+     opacity: 0.5;
+ }

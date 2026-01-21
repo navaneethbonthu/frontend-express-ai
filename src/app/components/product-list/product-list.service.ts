@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiStatus, Category, Product, ProductResponse } from './interfaces';
 import { catchError, EMPTY, Observable } from 'rxjs';
@@ -46,27 +46,44 @@ export class ProductListService {
   public readonly _Categories = computed(() => this.categories().data);
   public readonly _CategoriesApiStatus = computed(() => this.categories().apiStatus);
 
-  getAllProducts() {
+  getAllProducts(categoryId: string | null = '') {
+    // 1. Set status to loading
     this.products.update((val) => ({ ...val, apiStatus: 'loading' }));
+
+    // 2. Build Query Parameters
+    let params = new HttpParams();
+
+    // Only add categoryId to request if it's not empty and not "All"
+    if (categoryId == '' || categoryId === null || !categoryId) {
+      params = params.set('categoryId', '');
+    } else {
+      params = params.set('categoryId', categoryId);
+    }
+
+    // You can also add default pagination here if you want
+    params = params.set('page', '1');
+    params = params.set('limit', '10');
+
+    // 3. Make the HTTP call with the params object
     this.http
-      .get<ProductResponse>(`${this.API}/products`)
+      .get<ProductResponse>(`${this.API}/products`, { params })
       .pipe(
-        // takeUntilDestroyed(),
-        catchError(() => {
+        catchError((error) => {
+          console.error('Fetch error:', error);
           this.products.update((val) => ({ ...val, apiStatus: 'error' }));
           return EMPTY;
-        })
+        }),
       )
       .subscribe((response) => {
-        this.products.update(() => ({
+        // 4. Update state with the backend response
+        this.products.set({
           data: response.data,
           totalItems: response.pagination.totalItems,
           currentPage: response.pagination.currentPage,
           totalPages: response.pagination.totalPages,
           itemsPerPage: response.pagination.itemsPerPage,
           apiStatus: 'success',
-        }));
-        console.log(this._Products(), response);
+        });
       });
   }
 
@@ -80,7 +97,7 @@ export class ProductListService {
             return EMPTY;
           });
           return EMPTY;
-        })
+        }),
       )
       .subscribe((response) => {
         this.categories.update(() => ({ data: response, apiStatus: 'success' }));

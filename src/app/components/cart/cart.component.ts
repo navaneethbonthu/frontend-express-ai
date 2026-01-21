@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe, NgOptimizedImage } from '@angular/common';
+import { CartService } from './cart.service';
 
 interface CartItem {
   id: number;
@@ -18,118 +19,118 @@ interface CartItem {
     <div class="container">
       <h1 class="section-title">Your Cart</h1>
 
-      @if (cartItems().length > 0) {
-      <div class="cart-layout">
-        <div class="cart-items">
-          <div class="cart-header">
-            <span class="col-product">Product</span>
-            <span class="col-price">Price</span>
-            <span class="col-quantity">Quantity</span>
-            <span class="col-total">Total</span>
-            <span class="col-action"></span>
+      @if (cartService.totalCount() > 0) {
+        <div class="cart-layout">
+          <div class="cart-items">
+            <div class="cart-header">
+              <span class="col-product">Product</span>
+              <span class="col-price">Price</span>
+              <span class="col-quantity">Quantity</span>
+              <span class="col-total">Total</span>
+              <span class="col-action"></span>
+            </div>
+
+            @for (item of cartService.cartItems(); track item.id) {
+              <div class="cart-item">
+                <div class="col-product product-cell">
+                  <div class="product-image">
+                    <img [src]="item.imageUrl" [alt]="item.name" width="80" height="80" />
+                  </div>
+                  <div class="product-info">
+                    <h3 class="product-name">{{ item.name }}</h3>
+                    <span class="product-sku">SKU: SS-{{ item.id }}</span>
+                  </div>
+                </div>
+                <div class="col-price">
+                  <span class="mobile-label">Price:</span>
+                  {{ item.price | currency }}
+                </div>
+                <div class="col-quantity">
+                  <span class="mobile-label">Qty:</span>
+                  <div class="quantity-controls">
+                    <button (click)="updateQuantity(item.id, -1)">-</button>
+                    <span>{{ item.quantity }}</span>
+                    <button (click)="updateQuantity(item.id, 1)">+</button>
+                  </div>
+                </div>
+                <div class="col-total">
+                  <span class="mobile-label">Total:</span>
+                  {{ item.price * item.quantity | currency }}
+                </div>
+                <div class="col-action">
+                  <button class="remove-btn" (click)="removeItem(item.id)">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            }
           </div>
 
-          @for (item of cartItems(); track item.id) {
-          <div class="cart-item">
-            <div class="col-product product-cell">
-              <div class="product-image">
-                <img [ngSrc]="item.image" [alt]="item.name" width="80" height="80" />
+          <div class="cart-summary">
+            <div class="summary-card">
+              <h3>Order Summary</h3>
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span>{{ cartService.totalPrice() | currency }}</span>
               </div>
-              <div class="product-info">
-                <h3 class="product-name">{{ item.name }}</h3>
-                <span class="product-sku">SKU: SS-{{ item.id }}</span>
+              <div class="summary-row">
+                <span>Shipping</span>
+                <span>Free</span>
               </div>
-            </div>
-            <div class="col-price">
-              <span class="mobile-label">Price:</span>
-              {{ item.price | currency }}
-            </div>
-            <div class="col-quantity">
-              <span class="mobile-label">Qty:</span>
-              <div class="quantity-controls">
-                <button (click)="updateQuantity(item.id, -1)">-</button>
-                <span>{{ item.quantity }}</span>
-                <button (click)="updateQuantity(item.id, 1)">+</button>
+              <div class="summary-row">
+                <span>Tax</span>
+                <span>No Tax</span>
               </div>
-            </div>
-            <div class="col-total">
-              <span class="mobile-label">Total:</span>
-              {{ item.price * item.quantity | currency }}
-            </div>
-            <div class="col-action">
-              <button class="remove-btn" (click)="removeItem(item.id)">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M3 6h18" />
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                </svg>
+              <div class="summary-total">
+                <span>Total</span>
+                <span>{{ cartService.totalPrice() | currency }}</span>
+              </div>
+              <button class="btn btn-primary btn-block checkout-btn" routerLink="/checkout">
+                Proceed to Checkout
               </button>
+              <a routerLink="/products" class="continue-shopping">Continue Shopping</a>
             </div>
           </div>
-          }
         </div>
-
-        <div class="cart-summary">
-          <div class="summary-card">
-            <h3>Order Summary</h3>
-            <div class="summary-row">
-              <span>Subtotal</span>
-              <span>{{ subtotal() | currency }}</span>
-            </div>
-            <div class="summary-row">
-              <span>Shipping</span>
-              <span>Free</span>
-            </div>
-            <div class="summary-row">
-              <span>Tax</span>
-              <span>{{ tax() | currency }}</span>
-            </div>
-            <div class="summary-total">
-              <span>Total</span>
-              <span>{{ total() | currency }}</span>
-            </div>
-            <button class="btn btn-primary btn-block checkout-btn" routerLink="/checkout">
-              Proceed to Checkout
-            </button>
-            <a routerLink="/products" class="continue-shopping">Continue Shopping</a>
-          </div>
-        </div>
-      </div>
       } @else {
-      <div class="empty-cart">
-        <div class="empty-icon">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="64"
-            height="64"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="8" cy="21" r="1" />
-            <circle cx="19" cy="21" r="1" />
-            <path
-              d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"
-            />
-          </svg>
+        <div class="empty-cart">
+          <div class="empty-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="8" cy="21" r="1" />
+              <circle cx="19" cy="21" r="1" />
+              <path
+                d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"
+              />
+            </svg>
+          </div>
+          <h2>Your cart is empty</h2>
+          <p>Looks like you haven't added anything to your cart yet.</p>
+          <a routerLink="/products" class="btn btn-primary">Start Shopping</a>
         </div>
-        <h2>Your cart is empty</h2>
-        <p>Looks like you haven't added anything to your cart yet.</p>
-        <a routerLink="/products" class="btn btn-primary">Start Shopping</a>
-      </div>
       }
     </div>
   `,
@@ -320,36 +321,15 @@ interface CartItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CartComponent {
-  cartItems = signal<CartItem[]>([
-    {
-      id: 1,
-      name: 'Premium Wireless Headphones',
-      price: 299.99,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80',
-    },
-    {
-      id: 3,
-      name: 'Minimalist Leather Backpack',
-      price: 129.99,
-      quantity: 2,
-      image: 'https://images.unsplash.com/photo-1547949003-9792a18a2601?w=800&q=80',
-    },
-  ]);
-
-  subtotal = () => this.cartItems().reduce((acc, item) => acc + item.price * item.quantity, 0);
-  tax = () => this.subtotal() * 0.08;
-  total = () => this.subtotal() + this.tax();
-
-  updateQuantity(id: number, delta: number) {
-    this.cartItems.update((items) =>
-      items.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
-      )
-    );
+  public cartService = inject(CartService);
+  removeItem(productId: number) {
+    this.cartService.remoCartItem(productId);
   }
-
-  removeItem(id: number) {
-    this.cartItems.update((items) => items.filter((item) => item.id !== id));
+  updateQuantity(productId: number, change: number) {
+    const currentItems = this.cartService.cartItems();
+    const item = currentItems.find((i) => i.id === productId);
+    if (item) {
+      this.cartService.updateQuantity(productId, item.quantity + change);
+    }
   }
 }

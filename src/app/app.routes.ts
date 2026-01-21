@@ -21,6 +21,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/auth/auth.component').then((m) => m.AuthComponent),
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./components/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+  },
+  {
     path: '**',
     loadComponent: () =>
       import('./components/not-found/not-found.component').then((m) => m.NotFoundComponent),
