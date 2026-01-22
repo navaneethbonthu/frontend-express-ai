@@ -30,3 +30,10 @@ export interface Category {
     products: number;
   };
 }
+
+export interface FormValues {
+  name: string;
+  price: number;
+  description: string;
+  category: string;
+}

@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const ADMIN_ROUTES: Routes = [
   {
     path: '',
-    loadComponent: () => import('./admin-dashboard.component'),
+    loadComponent: () => import('./admin-dashboard/admin-dashboard.component'),
     children: [
       { path: '', redirectTo: 'products', pathMatch: 'full' },
       {

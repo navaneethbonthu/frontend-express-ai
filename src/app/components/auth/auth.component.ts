@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { inject } from '@angular/core';
+import { AuthService } from './auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -23,10 +24,10 @@ import { inject } from '@angular/core';
 
         <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
           @if (!isLogin()) {
-          <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" formControlName="name" class="form-input" placeholder="John Doe" />
-          </div>
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" formControlName="name" class="form-input" placeholder="John Doe" />
+            </div>
           }
 
           <div class="form-group">
@@ -50,9 +51,9 @@ import { inject } from '@angular/core';
           </div>
 
           @if (isLogin()) {
-          <div class="forgot-password">
-            <a href="#">Forgot password?</a>
-          </div>
+            <div class="forgot-password">
+              <a href="#">Forgot password?</a>
+            </div>
           }
 
           <button type="submit" class="btn btn-primary btn-block auth-btn">
@@ -171,11 +172,10 @@ import { inject } from '@angular/core';
 export class AuthComponent {
   private fb = inject(FormBuilder);
   isLogin = signal(true);
-
+  authService = inject(AuthService);
   authForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    name: [''],
+    email: ['test@example.com', [Validators.required, Validators.email]],
+    password: ['password123', [Validators.required, Validators.minLength(6)]],
   });
 
   toggleMode() {
@@ -184,7 +184,14 @@ export class AuthComponent {
 
   onSubmit() {
     if (this.authForm.valid) {
-      console.log('Auth form submitted', this.authForm.value);
+      this.authService.login(this.authForm.value).subscribe({
+        next: (response) => {
+          // console.log('Login successful:', response);
+        },
+        error: (error) => {
+          // console.error('Login error:', error);
+        },
+      });
     }
   }
 }

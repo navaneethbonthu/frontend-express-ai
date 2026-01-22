@@ -1,0 +1,67 @@
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555;
+}
+
+.form-group input[type=\'text\'],
+.form-group input[type=\'number\'],
+.form-group textarea,
+.form-group select {
+  width: calc(100% - 20px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+  display: block;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.form-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.form-actions button[type=\'submit\'] {
+  background-color: #007bff;
+  color: white;
+}
+
+.form-actions button[type=\'submit\']:hover {
+  background-color: #0056b3;
+}
+
+.form-actions button[type=\'button\'] {
+  background-color: #6c757d;
+  color: white;
+}
+
+.form-actions button[type=\'button\']:hover {
+  background-color: #5a6268;
+}

@@ -5,6 +5,7 @@ import {
   inject,
   computed,
   effect,
+  OnInit,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe, JsonPipe, NgOptimizedImage } from '@angular/common';
@@ -21,12 +22,13 @@ import StarRatting from '../star-ratting/star-ratting';
   styleUrl: './product-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class ProductListComponent {
+export default class ProductListComponent implements OnInit {
   protected productListService = inject(ProductListService);
 
   category = signal<string | null>(null);
   selectedCategory = computed(() => this.category());
   cartList = signal<Product[]>([]);
+  searchQuery = signal<string>(''); // New Signal
 
   public cartService = inject(CartService);
 
@@ -35,8 +37,12 @@ export default class ProductListComponent {
     this.productListService.getAllCategories();
     effect(() => {
       const currentCategory = this.category();
-      this.productListService.getAllProducts(currentCategory);
+      this.productListService.getAllProducts(currentCategory, this.searchQuery());
     });
+  }
+
+  ngOnInit() {
+    console.log('Categories:', this.productListService._Categories());
   }
 
   onCategoryChange(e: Event) {
@@ -44,6 +50,11 @@ export default class ProductListComponent {
     const categoryId = selectElement.value;
     this.category.set(categoryId);
     console.log('Selected category:', categoryId);
+  }
+  onSearchChanges(e: Event) {
+    const val = (e.target as HTMLInputElement).value;
+    this.searchQuery.set(val);
+    console.log('Search Value:', val);
   }
 
   addToCart(product: Product) {

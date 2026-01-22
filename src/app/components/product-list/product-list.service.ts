@@ -2,7 +2,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ApiStatus, Category, Product, ProductResponse } from './interfaces';
 import { catchError, EMPTY, Observable } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root',
@@ -46,7 +45,7 @@ export class ProductListService {
   public readonly _Categories = computed(() => this.categories().data);
   public readonly _CategoriesApiStatus = computed(() => this.categories().apiStatus);
 
-  getAllProducts(categoryId: string | null = '') {
+  getAllProducts(categoryId: string | null = '', search: string = '') {
     // 1. Set status to loading
     this.products.update((val) => ({ ...val, apiStatus: 'loading' }));
 
@@ -58,6 +57,10 @@ export class ProductListService {
       params = params.set('categoryId', '');
     } else {
       params = params.set('categoryId', categoryId);
+    }
+
+    if (search) {
+      params = params.set('search', search);
     }
 
     // You can also add default pagination here if you want
@@ -85,6 +88,11 @@ export class ProductListService {
           apiStatus: 'success',
         });
       });
+  }
+
+  addProduct(newProduct: any): Observable<any> {
+    console.log('Adding product:', newProduct);
+    return this.http.post(`${this.API}/products`, newProduct);
   }
 
   getAllCategories() {

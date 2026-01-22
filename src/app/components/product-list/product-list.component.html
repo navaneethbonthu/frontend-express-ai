@@ -2,6 +2,10 @@
     <div class="header-section">
         <h1 class="section-title">Our Products</h1>
         <div class="filters">
+            <div class="search-box">
+                <input type="text" class="form-control" placeholder="Search products..."
+                    (input)="onSearchChanges($event)" />
+            </div>
             <select class="form-select" (change)="onCategoryChange($event)">
                 <option value="">All Categories</option>
                 @for (category of productListService._Categories(); track category.id) {
