@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { inject } from '@angular/core';
 import { AuthService } from './auth.service';
@@ -173,6 +173,7 @@ export class AuthComponent {
   private fb = inject(FormBuilder);
   isLogin = signal(true);
   authService = inject(AuthService);
+  private router = inject(Router);
   authForm = this.fb.group({
     email: ['test@example.com', [Validators.required, Validators.email]],
     password: ['password123', [Validators.required, Validators.minLength(6)]],
@@ -186,10 +187,13 @@ export class AuthComponent {
     if (this.authForm.valid) {
       this.authService.login(this.authForm.value).subscribe({
         next: (response) => {
-          // console.log('Login successful:', response);
+          if (response.token) {
+            this.authForm.reset();
+            this.router.navigate(['/products']);
+          }
         },
         error: (error) => {
-          // console.error('Login error:', error);
+          console.error('Login error:', error);
         },
       });
     }

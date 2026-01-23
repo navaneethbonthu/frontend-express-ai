@@ -21,8 +21,6 @@ export class AuthService {
   login(loginForm: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API}/login`, loginForm).pipe(
       tap((response) => {
-        console.log('Login Response:', response);
-        console.log('Token:', response.token);
         this.setSession(response);
       }),
     );
@@ -37,5 +35,14 @@ export class AuthService {
   private getUserFromStorage(): User | null {
     const user = localStorage.getItem(this.USER_KEY);
     return user ? JSON.parse(user) : null;
+  }
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    this.currentUserSubject$.next(null);
   }
 }

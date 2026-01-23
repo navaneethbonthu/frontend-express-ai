@@ -1,169 +1,253 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { OverlayPanelComponent } from './overlay-panel.component';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ProductListService } from '../product-list/product-list.service';
 
 @Component({
   selector: 'app-category-management',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, OverlayPanelComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="category-management-container">
-      <h2>Category Management</h2>
-
-      <button class="add-category-button" (click)="toggleAddCategoryPanel()">
-        Add New Category
-      </button>
-
-      @if (showAddCategoryPanel()) {
-        <app-overlay-panel
-          [isVisible]="showAddCategoryPanel()"
-          title="Add Category"
-          (close)="toggleAddCategoryPanel()"
-        >
-          <form [formGroup]="addCategoryForm" (ngSubmit)="onAddCategory()">
-            <div class="form-group">
-              <label for="categoryName">Category Name:</label>
-              <input id="categoryName" type="text" formControlName="name" />
-              @if (addCategoryForm.get('name')?.invalid && addCategoryForm.get('name')?.touched) {
-                <span class="error-message">Category name is required.</span>
-              }
-            </div>
-            <div class="form-actions">
-              <button type="submit" [disabled]="addCategoryForm.invalid">Add Category</button>
-              <button type="button" (click)="toggleAddCategoryPanel()">Cancel</button>
-            </div>
-          </form>
-        </app-overlay-panel>
-      }
+      <header class="management-header">
+        <h2>Category Management</h2>
+        <button class="btn btn-primary" (click)="toggleAddCategoryPanel()">
+          <span class="icon">+</span> Add New Category
+        </button>
+      </header>
 
       <div class="category-list-section">
-        <h3>Existing Categories</h3>
-        <p>List of categories will go here.</p>
-        <!-- This is where a table or list of categories would be displayed -->
+        @if (productListService._CategoriesApiStatus() === 'loading') {
+          <div class="loading-state">Loading categories...</div>
+        } @else if (productListService._CategoriesApiStatus() === 'error') {
+          <div class="error-state">Failed to load categories.</div>
+        } @else {
+          <table class="category-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (category of productListService._Categories(); track category.id) {
+                <tr>
+                  <td>{{ category.id }}</td>
+                  <td>{{ category.name }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn btn-icon btn-edit" title="Edit Category">✏️</button>
+                      <button class="btn btn-icon btn-delete" title="Delete Category">🗑️</button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="3" class="empty-state">No categories found.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
       </div>
     </div>
+
+    @if (showAddCategoryPanel()) {
+      <app-overlay-panel
+        [isVisible]="showAddCategoryPanel()"
+        title="Add Category"
+        (close)="toggleAddCategoryPanel()"
+      >
+        <form [formGroup]="addCategoryForm" (ngSubmit)="onAddCategory()">
+          <div class="form-group">
+            <label for="categoryName">Category Name</label>
+            <input
+              id="categoryName"
+              type="text"
+              formControlName="name"
+              class="form-control"
+              placeholder="e.g. Electronics"
+              [class.is-invalid]="
+                addCategoryForm.get('name')?.invalid && addCategoryForm.get('name')?.touched
+              "
+            />
+            @if (addCategoryForm.get('name')?.invalid && addCategoryForm.get('name')?.touched) {
+              <span class="error-message">Category name is required.</span>
+            }
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="toggleAddCategoryPanel()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="addCategoryForm.invalid">
+              Add Category
+            </button>
+          </div>
+        </form>
+      </app-overlay-panel>
+    }
   `,
   styles: [
     `
       .category-management-container {
-        padding: 20px;
-        background-color: #f9f9f9;
+        background-color: white;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin-top: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 24px;
       }
 
-      h2 {
-        color: #333;
-        text-align: center;
-        margin-bottom: 25px;
+      .management-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+
+        h2 {
+          margin: 0;
+          font-size: 1.5rem;
+          color: #2c3e50;
+        }
       }
 
-      .add-category-button {
-        display: block;
-        margin: 0 auto 30px auto;
-        padding: 12px 25px;
-        background-color: #28a745;
-        color: white;
-        border: none;
-        border-radius: 5px;
+      .category-table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th,
+        td {
+          text-align: left;
+          padding: 15px;
+          border-bottom: 1px solid #eee;
+        }
+
+        th {
+          font-weight: 600;
+          color: #7f8c8d;
+          text-transform: uppercase;
+          font-size: 12px;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: 500;
         cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s ease;
-      }
+        border: none;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
 
-      .add-category-button:hover {
-        background-color: #218838;
+        &-primary {
+          background-color: #3498db;
+          color: white;
+          &:hover:not(:disabled) {
+            background-color: #2980b9;
+          }
+          &:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+          }
+        }
+
+        &-secondary {
+          background-color: #95a5a6;
+          color: white;
+          &:hover {
+            background-color: #7f8c8d;
+          }
+        }
+
+        &-icon {
+          background: none;
+          padding: 5px;
+          font-size: 1.1rem;
+          &:hover {
+            background-color: #f5f5f5;
+          }
+        }
       }
 
       .form-group {
-        margin-bottom: 15px;
-      }
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
 
-      .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: bold;
-        color: #555;
-      }
+        label {
+          font-weight: 500;
+          color: #2c3e50;
+          font-size: 14px;
+        }
 
-      .form-group input[type='text'] {
-        width: calc(100% - 20px);
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
+        .form-control {
+          padding: 10px 12px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 14px;
+          transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
+
+          &:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+          }
+
+          &.is-invalid {
+            border-color: #e74c3c;
+            &:focus {
+              box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+            }
+          }
+        }
       }
 
       .error-message {
-        color: #dc3545;
-        font-size: 14px;
-        margin-top: 5px;
-        display: block;
+        color: #e74c3c;
+        font-size: 12px;
       }
 
       .form-actions {
         display: flex;
         justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .action-buttons {
+        display: flex;
         gap: 10px;
-        margin-top: 25px;
       }
 
-      .form-actions button {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s ease;
-      }
-
-      .form-actions button[type='submit'] {
-        background-color: #007bff;
-        color: white;
-      }
-
-      .form-actions button[type='submit']:hover {
-        background-color: #0056b3;
-      }
-
-      .form-actions button[type='button'] {
-        background-color: #6c757d;
-        color: white;
-      }
-
-      .form-actions button[type='button']:hover {
-        background-color: #5a6268;
-      }
-
-      .category-list-section {
-        margin-top: 40px;
-        border-top: 1px solid #eee;
-        padding-top: 30px;
-      }
-
-      .category-list-section h3 {
-        color: #333;
-        margin-bottom: 20px;
+      .empty-state,
+      .loading-state,
+      .error-state {
         text-align: center;
+        padding: 40px;
+        color: #7f8c8d;
       }
     `,
   ],
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, OverlayPanelComponent],
 })
-export class CategoryManagementComponent {
+export class CategoryManagementComponent implements OnInit {
   fb = inject(FormBuilder);
+  productListService = inject(ProductListService);
 
   showAddCategoryPanel = signal(false);
-  categories = signal<Array<{ id: string; name: string }>>([
-    { id: 'cat1', name: 'Electronics' },
-    { id: 'cat2', name: 'Books' },
-    { id: 'cat3', name: 'Clothing' },
-  ]);
 
   addCategoryForm = this.fb.group({
     name: ['', Validators.required],
   });
+
+  ngOnInit() {
+    this.productListService.getAllCategories();
+  }
 
   toggleAddCategoryPanel() {
     this.showAddCategoryPanel.update((value) => !value);
@@ -174,9 +258,10 @@ export class CategoryManagementComponent {
 
   onAddCategory() {
     if (this.addCategoryForm.valid) {
-      console.log('Category Added:', this.addCategoryForm.value);
-      // In a real app, you'd add this to your categories signal or a service
+      // In a real app, you'd call a service to add category
+      // this.productListService.addCategory(this.addCategoryForm.value).subscribe(...)
       this.toggleAddCategoryPanel();
+      this.productListService.getAllCategories();
     } else {
       this.addCategoryForm.markAllAsTouched();
     }

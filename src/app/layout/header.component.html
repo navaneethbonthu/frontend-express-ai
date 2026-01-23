@@ -5,7 +5,8 @@
         </a>
 
         <nav class="nav">
-            <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
+            <a routerLink="/products" routerLinkActive="active" class="nav-link"
+                *ngIf="currentUser$ | async as user">Products</a>
             <a routerLink="/admin" routerLinkActive="active" class="nav-link">Admin</a>
         </nav>
 
