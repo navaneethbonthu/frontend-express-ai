@@ -15,8 +15,9 @@ export class AuthService {
   currentUserSubject$ = new BehaviorSubject<User | null>(this.getUserFromStorage());
   public currentUser$ = this.currentUserSubject$.asObservable();
   public isAuthenticated$ = this.currentUser$.pipe(map((user) => !!user));
+  public isAdmin$ = this.currentUser$.pipe(map(user => user?.role === 'ADMIN'));
 
-  constructor() {}
+  constructor() { }
 
   login(loginForm: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API}/login`, loginForm).pipe(

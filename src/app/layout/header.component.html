@@ -4,13 +4,13 @@
             <span class="logo-text">Swift<span class="text-primary">Shop</span></span>
         </a>
 
-        <nav class="nav">
-            <a routerLink="/products" routerLinkActive="active" class="nav-link"
-                *ngIf="currentUser$ | async as user">Products</a>
-            <a routerLink="/admin" routerLinkActive="active" class="nav-link">Admin</a>
+        <nav class="nav" *ngIf="(isAuthenticated$ | async)">
+            <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
+            <a routerLink="/admin" routerLinkActive="active" class="nav-link"
+                *ngIf="authService.isAdmin$ | async">Admin</a>
         </nav>
 
-        <div class="header-actions">
+        <div class="header-actions" *ngIf="(isAuthenticated$ | async)">
             <a routerLink="/cart" class="btn btn-ghost cart-btn" aria-label="Cart">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -21,7 +21,7 @@
                 </svg>
                 <span class="cart-count">{{ cartService.cartItems().length }}</span>
             </a>
-            <a routerLink="/login" class="btn btn-primary">Login</a>
+            <a routerLink="/login" class="btn btn-danger" (click)="logout()">Logout</a>
         </div>
     </div>
 </header>

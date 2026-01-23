@@ -17,4 +17,11 @@ export class HeaderComponent {
   authService = inject(AuthService);
 
   currentUser$ = this.authService.currentUser$;
+  isAdmin$ = this.authService.isAdmin$;
+  isAuthenticated$ = this.authService.isAuthenticated$;
+
+  constructor() { }
+  logout(): void {
+    this.authService.logout();
+  }
 }

@@ -1,10 +1,11 @@
 <div class="container">
-    <div class="header-section">
+    <div class="list-header">
         <h1 class="section-title">Our Products</h1>
-        <div class="filters">
+        <div class="controls">
             <div class="search-box">
                 <input type="text" class="form-control" placeholder="Search products..."
-                    (input)="onSearchChanges($event)" />
+                    (input)="onSearchChanges($event)" aria-label="Search products" />
+                <img src="/assets/icons/search.svg" alt="" class="search-icon" />
             </div>
             <select class="form-select" (change)="onCategoryChange($event)">
                 <option value="">All Categories</option>
@@ -17,34 +18,45 @@
         </div>
     </div>
 
+    @if (productListService._ApiStatus() === 'loading') {
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading products...</p>
+    </div>
+    } @else if (productListService._Products().length === 0 && productListService._ApiStatus() === 'success') {
+    <div class="no-products-state">
+        <img src="/assets/icons/box-open.svg" alt="Empty box" class="empty-icon" />
+        <h2>Oops! Nothing here.</h2>
+        <p>Try adjusting your search filters or check back later for new arrivals.</p>
+    </div>
+    } @else {
     <div class="product-grid">
         @for (product of productListService._Products(); track product.id) {
-        <div class="card product-card">
-            <!-- [routerLink]="['/products', product.id]" -->
-            <div class="product-image">
-                <img [ngSrc]="product.imageUrl || '/assets/images/placeholder.png'" [alt]="product.name" width="300"
-                    height="300" priority />
-                <button class="btn btn-primary add-to-cart-quick" (click)="$event.stopPropagation()"
-                    aria-label="Add to Cart">
-                    <img src="/assets/icons/cart-plus.svg" alt="" width="20" height="20" />
-                </button>
+        <a class="product-card">
+            <div class="product-image-wrapper">
+                <img [ngSrc]="product.imageUrl || '/assets/images/placeholder.png'" [alt]="product.name" width="400"
+                    height="400" priority class="product-image" />
+                <div class="quick-actions">
+                    <button class="btn btn-primary add-to-cart-quick"
+                        (click)="addToCart(product); $event.preventDefault();"
+                        aria-label="Add {{ product.name }} to cart">
+                        <img src="/assets/icons/cart-plus.svg" alt="Add to Cart" width="20" height="20" />
+                    </button>
+                </div>
+                <!-- @if (product.isNew) { -->
+                <span class="badge new-badge">New</span>
+                <!-- } -->
             </div>
             <div class="product-info">
-                <span class="product-category"> {{ product.category?.name || 'Uncategorized' }}</span>
+                <span class="product-category">{{ product.category?.name || 'Uncategorized' }}</span>
                 <h3 class="product-name">{{ product.name }}</h3>
                 <div class="product-footer">
                     <span class="product-price">{{ product.price | currency: 'USD' }}</span>
-                    <app-star-ratting [value]="1" [readOnly]="false"></app-star-ratting>
-                    <button class="btn btn-primary add-to-cart" (click)="addToCart(product)">
-                        Add to Cart
-                    </button>
+                    <app-star-ratting [value]="product.rating || 0" [readOnly]="true"></app-star-ratting>
                 </div>
             </div>
-        </div>
-        } @empty {
-        <div class="no-products">
-            <p>No products found in this category.</p>
-        </div>
+        </a>
         }
     </div>
+    }
 </div>
