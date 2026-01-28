@@ -57,7 +57,7 @@ import { ProductListService } from '../product-list/product-list.service';
                   <td>{{ product.price | currency }}</td>
                   <td>
                     <div class="action-buttons">
-                      <button class="btn btn-icon btn-edit" title="Edit">✏️</button>
+                      <button class="btn btn-icon btn-edit" title="Edit" (click)="openAddProductOverlay(product)">✏️</button>
                       <button class="btn btn-icon btn-delete" title="Delete">🗑️</button>
                     </div>
                   </td>
@@ -210,7 +210,9 @@ export class ProductManagementComponent implements OnInit {
     this.productListService.getAllProducts('', searchTerm);
   }
 
-  openAddProductOverlay() {
+  openAddProductOverlay(item: any = null) {
+    const updatedProduct = { ...item }
+    console.log('clicked item:', updatedProduct);
     this.showAddProductPanel.set(true);
   }
 

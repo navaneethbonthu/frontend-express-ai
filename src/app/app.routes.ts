@@ -1,24 +1,29 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './components/auth/auth.guard';
+import { publicGuard } from './components/auth/public.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'products', pathMatch: 'full' },
   {
     path: 'products',
+    canActivate: [authGuard],
     loadComponent: () => import('./components/product-list/product-list.component'),
   },
 
   {
     path: 'cart',
+    canActivate: [authGuard],
     loadComponent: () => import('./components/cart/cart.component').then((m) => m.CartComponent),
   },
   {
     path: 'checkout',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./components/checkout/checkout.component').then((m) => m.CheckoutComponent),
   },
   {
     path: 'login',
+    canActivate: [publicGuard],
     loadComponent: () => import('./components/auth/auth.component').then((m) => m.AuthComponent),
   },
   {

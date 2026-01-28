@@ -14,6 +14,7 @@ export class AddProductFormComponent implements OnInit {
   fb = inject(FormBuilder);
 
   productAdded = output<any>();
+  isEdit  = signal(false);
 
   private productListService = inject(ProductListService); // Assume a service that provides categories
   categories = this.productListService._Categories;
@@ -31,9 +32,24 @@ export class AddProductFormComponent implements OnInit {
     console.log(this.categories());
   }
   onAddProduct() {
+
+    if (this.isEdit()) {
+      
+      // this.productListService.updateProduct(productId, this.addProductForm.value);
+      // console.log('Product Updated:', this.addProductForm.value);
+
+      this.productAdded.emit(this.addProductForm.value);
+      this.addProductForm.reset();
+    }
+
     if (this.addProductForm.valid) {
-      const userId = 'cmk26t4j60000u7rba7owud9h';
-      const formValue = { ...this.addProductForm.value, userId: userId };
+      // const userId = 'cmk26t4j60000u7rba7owud9h';
+      const formValue = {
+        name: this.addProductForm.value.name,
+        price: this.addProductForm.value.price,
+        description: this.addProductForm.value.description,
+        categoryId: this.addProductForm.value.category // Map 'category' value to 'categoryId' key
+      };
       this.productListService.addProduct(formValue);
       // console.log('Product Added:', formValue);
 

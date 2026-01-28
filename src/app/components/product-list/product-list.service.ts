@@ -95,6 +95,12 @@ export class ProductListService {
     return this.http.post(`${this.API}/products`, newProduct);
   }
 
+
+  updateProduct(productId: string, updatedProduct: any): Observable<any> {
+    console.log('Adding product:', updatedProduct);
+    return this.http.put(`${this.API}/products/${productId}`, updatedProduct);
+  }
+
   getAllCategories() {
     this.http
       .get<Category[]>(`${this.API}/categories`)
