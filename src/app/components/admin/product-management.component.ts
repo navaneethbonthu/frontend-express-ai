@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { OverlayPanelComponent } from './overlay-panel.component';
 import { AddProductFormComponent } from './add-product-form/add-product-form.component';
 import { ProductListService } from '../product-list/product-list.service';
+import { Product } from '../product-list/interfaces';
 
 @Component({
   selector: 'app-product-management',
@@ -76,10 +77,13 @@ import { ProductListService } from '../product-list/product-list.service';
     @if (showAddProductPanel()) {
       <app-overlay-panel
         [isVisible]="showAddProductPanel()"
-        title="Add New Product"
+        [title]="editingProduct() ? 'Edit Product' : 'Add New Product'"
         (close)="closeAddProductOverlay()"
       >
-        <app-add-product-form (productAdded)="onProductAdded($event)"></app-add-product-form>
+        <app-add-product-form
+          [editingProduct]="editingProduct()"
+          (productAdded)="onProductAdded($event)"
+        ></app-add-product-form>
       </app-overlay-panel>
     }
   `,
@@ -200,6 +204,7 @@ import { ProductListService } from '../product-list/product-list.service';
 export class ProductManagementComponent implements OnInit {
   productListService = inject(ProductListService);
   showAddProductPanel = signal(false);
+  editingProduct = signal<Product | null>(null);
 
   ngOnInit() {
     this.productListService.getAllProducts();
@@ -210,24 +215,41 @@ export class ProductManagementComponent implements OnInit {
     this.productListService.getAllProducts('', searchTerm);
   }
 
-  openAddProductOverlay(item: any = null) {
-    const updatedProduct = { ...item }
-    console.log('clicked item:', updatedProduct);
+  openAddProductOverlay(productToEdit: Product | null = null) {
+    this.editingProduct.set(productToEdit);
     this.showAddProductPanel.set(true);
   }
 
   closeAddProductOverlay() {
     this.showAddProductPanel.set(false);
+    this.editingProduct.set(null); // Reset editing product on close
   }
 
-  onProductAdded(newProduct: any) {
-    if (newProduct) {
-      this.productListService.addProduct(newProduct).subscribe({
-        next: () => {
-          this.productListService.getAllProducts();
-        },
-      });
+  onProductAdded(productPayload: any) {
+    if (!productPayload) {
+      this.closeAddProductOverlay();
+      return;
     }
-    this.closeAddProductOverlay();
+
+    const currentEditingProduct = this.editingProduct();
+    const isEdit = !!currentEditingProduct;
+    let operation$;
+
+    if (isEdit && currentEditingProduct) {
+      operation$ = this.productListService.updateProduct(currentEditingProduct.id, productPayload);
+    } else {
+      operation$ = this.productListService.addProduct(productPayload);
+    }
+
+    operation$.subscribe({
+      next: () => {
+        this.productListService.getAllProducts();
+        this.closeAddProductOverlay();
+      },
+      error: (err) => {
+        console.error(`Failed to ${isEdit ? 'update' : 'add'} product:`, err);
+        // TODO: Implement user-facing error notification
+      },
+    });
   }
 }

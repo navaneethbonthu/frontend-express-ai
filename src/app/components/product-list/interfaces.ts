@@ -8,6 +8,7 @@ export interface Product {
   price: number;
   rating: number;
   imageUrl: string;
+  description?: string;
 }
 
 export type ApiStatus = 'idle' | 'loading' | 'success' | 'error';

@@ -44,7 +44,7 @@
     <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
         <button type="submit" class="btn btn-primary" [disabled]="addProductForm.invalid">
-            Create Product
+            {{ editingProduct() ? 'Update Product' : 'Create Product' }}
         </button>
     </div>
 </form>

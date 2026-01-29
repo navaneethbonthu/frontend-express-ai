@@ -1,7 +1,8 @@
-import { Component, signal, inject, output, OnInit } from '@angular/core';
+import { Component, signal, inject, output, OnInit, input, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ProductListService } from '../../product-list/product-list.service';
+import { Product } from '../../product-list/interfaces';
 
 @Component({
   selector: 'app-add-product-form',
@@ -9,15 +10,17 @@ import { ProductListService } from '../../product-list/product-list.service';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './add-product-form.component.html',
   styleUrl: './add-product-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddProductFormComponent implements OnInit {
-  fb = inject(FormBuilder);
+  private fb = inject(FormBuilder);
+  private productListService = inject(ProductListService);
 
+  editingProduct = input<Product | null>(null);
   productAdded = output<any>();
-  isEdit  = signal(false);
 
-  private productListService = inject(ProductListService); // Assume a service that provides categories
   categories = this.productListService._Categories;
+
   addProductForm = this.fb.group({
     name: ['', Validators.required],
     price: [0, [Validators.required, Validators.min(0.01)]],
@@ -27,33 +30,42 @@ export class AddProductFormComponent implements OnInit {
 
   constructor() {
     this.productListService.getAllCategories();
+
+    effect(() => {
+      const product = this.editingProduct();
+      if (product) {
+        this.addProductForm.patchValue({
+          name: product.name,
+          price: product.price,
+          description: product.description,
+          category: product.category.id,
+        });
+      } else {
+        this.addProductForm.reset({
+          name: '',
+          price: 0,
+          description: '',
+          category: '',
+        });
+      }
+    });
   }
+
   ngOnInit() {
-    console.log(this.categories());
+    // Categories are loaded in constructor via service
   }
+
   onAddProduct() {
-
-    if (this.isEdit()) {
-      
-      // this.productListService.updateProduct(productId, this.addProductForm.value);
-      // console.log('Product Updated:', this.addProductForm.value);
-
-      this.productAdded.emit(this.addProductForm.value);
-      this.addProductForm.reset();
-    }
-
     if (this.addProductForm.valid) {
-      // const userId = 'cmk26t4j60000u7rba7owud9h';
-      const formValue = {
-        name: this.addProductForm.value.name,
-        price: this.addProductForm.value.price,
-        description: this.addProductForm.value.description,
-        categoryId: this.addProductForm.value.category // Map 'category' value to 'categoryId' key
+      const formValue = this.addProductForm.value;
+      const payload = {
+        name: formValue.name,
+        price: formValue.price,
+        description: formValue.description,
+        categoryId: formValue.category
       };
-      this.productListService.addProduct(formValue);
-      // console.log('Product Added:', formValue);
 
-      this.productAdded.emit(formValue);
+      this.productAdded.emit(payload);
       this.addProductForm.reset();
     } else {
       this.addProductForm.markAllAsTouched();

@@ -96,8 +96,8 @@ export class ProductListService {
   }
 
 
-  updateProduct(productId: string, updatedProduct: any): Observable<any> {
-    console.log('Adding product:', updatedProduct);
+  updateProduct(productId: string | number, updatedProduct: any): Observable<any> {
+    console.log('Updating product:', updatedProduct);
     return this.http.put(`${this.API}/products/${productId}`, updatedProduct);
   }
 
