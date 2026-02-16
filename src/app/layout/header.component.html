@@ -4,10 +4,13 @@
             <span class="logo-text">Swift<span class="text-primary">Shop</span></span>
         </a>
 
-        <nav class="nav" *ngIf="(isAuthenticated$ | async)">
-            <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
-            <a routerLink="/admin" routerLinkActive="active" class="nav-link"
-                *ngIf="authService.isAdmin$ | async">Admin</a>
+        <nav class="nav">
+            <a routerLink="/home" routerLinkActive="active" class="nav-link">home</a>
+            <ng-container *ngIf="(isAuthenticated$ | async)">
+                <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
+                <a routerLink="/admin" routerLinkActive="active" class="nav-link"
+                    *ngIf="authService.isAdmin$ | async">Admin</a>
+            </ng-container>
         </nav>
 
         <div class="header-actions" *ngIf="(isAuthenticated$ | async)">
