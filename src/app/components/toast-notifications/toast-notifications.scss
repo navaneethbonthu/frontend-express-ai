@@ -1,0 +1,84 @@
+*{
+    margin:  20px 60px;
+}
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.toast {
+    min-width: 250px;
+    padding: 15px;
+    border-radius: 8px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+}
+
+.success {
+    background-color: #4caf50;
+}
+
+.error {
+    background-color: #f44336;
+}
+
+.warning {
+    background-color: #ff9800;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.close-btn:hover {
+    opacity: 1;
+}
+
+/* Visual Timer Bar */
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    animation: shrink 5s linear forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes shrink {
+    from {
+        width: 100%;
+    }
+
+    to {
+        width: 0%;
+    }
+}
