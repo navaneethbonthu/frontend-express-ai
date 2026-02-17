@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   template: `
     <div class="auth-container">
       <div class="auth-card">
@@ -23,12 +23,12 @@ import { AuthService } from './auth.service';
         </div>
 
         <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
-          @if (!isLogin()) {
+          <!-- @if (!isLogin()) {
             <div class="form-group">
               <label>Full Name</label>
               <input type="text" formControlName="name" class="form-input" placeholder="John Doe" />
             </div>
-          }
+          } -->
 
           <div class="form-group">
             <label>Email Address</label>
@@ -185,7 +185,8 @@ export class AuthComponent {
 
   onSubmit() {
     if (this.authForm.valid) {
-      this.authService.login(this.authForm.value).subscribe({
+      const { email, password } = this.authForm.getRawValue();
+      this.authService.login({ email: email!, password: password! }).subscribe({
         next: (response) => {
           if (response.token) {
             this.authForm.reset();

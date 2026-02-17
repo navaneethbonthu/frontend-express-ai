@@ -6,14 +6,16 @@
 
         <nav class="nav">
             <a routerLink="/home" routerLinkActive="active" class="nav-link">home</a>
-            <ng-container *ngIf="(isAuthenticated$ | async)">
-                <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
-                <a routerLink="/admin" routerLinkActive="active" class="nav-link"
-                    *ngIf="authService.isAdmin$ | async">Admin</a>
-            </ng-container>
+            @if (authService.isAuthenticated()) {
+            <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
+            @if (authService.isAdmin()) {
+            <a routerLink="/admin" routerLinkActive="active" class="nav-link">Admin</a>
+            }
+            }
         </nav>
 
-        <div class="header-actions" *ngIf="(isAuthenticated$ | async)">
+        @if (authService.isAuthenticated()) {
+        <div class="header-actions">
             <a routerLink="/cart" class="btn btn-ghost cart-btn" aria-label="Cart">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -26,5 +28,6 @@
             </a>
             <a routerLink="/login" class="btn btn-danger" (click)="logout()">Logout</a>
         </div>
+        }
     </div>
 </header>

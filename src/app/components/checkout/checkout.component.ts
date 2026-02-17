@@ -6,7 +6,7 @@ import { inject } from '@angular/core';
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   template: `
     <div class="container">
       <h1 class="section-title">Checkout</h1>

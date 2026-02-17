@@ -14,7 +14,7 @@ interface CartItem {
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, NgOptimizedImage],
+  imports: [RouterLink, CurrencyPipe],
   template: `
     <div class="container">
       <h1 class="section-title">Your Cart</h1>
