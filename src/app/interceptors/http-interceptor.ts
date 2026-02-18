@@ -3,7 +3,7 @@ import { catchError, throwError } from "rxjs";
 
 
 
-export const HttpInterceptor: HttpInterceptorFn = (req, next) => {
+export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
