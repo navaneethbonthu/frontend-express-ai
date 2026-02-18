@@ -21,5 +21,5 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // }
 
   // If no token, just pass the original request through
-  return next(req);
+  // return next(req);
 };

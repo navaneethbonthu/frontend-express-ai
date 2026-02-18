@@ -42,7 +42,7 @@ export default class ProductListComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('Categories:', this.productListService._Categories());
+    // console.log('Categories:', this.productListService._Categories());
   }
 
   onCategoryChange(e: Event) {

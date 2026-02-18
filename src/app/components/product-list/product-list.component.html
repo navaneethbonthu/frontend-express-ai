@@ -5,7 +5,11 @@
             <div class="search-box">
                 <input type="text" class="form-control" placeholder="Search products..."
                     (input)="onSearchChanges($event)" aria-label="Search products" />
-                <img src="/assets/icons/search.svg" alt="" class="search-icon" />
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
             </div>
             <select class="form-select" (change)="onCategoryChange($event)">
                 <option value="">All Categories</option>
@@ -40,7 +44,7 @@
                     <button class="btn btn-primary add-to-cart-quick"
                         (click)="addToCart(product); $event.preventDefault();"
                         aria-label="Add {{ product.name }} to cart">
-                        <img src="/assets/icons/cart-plus.svg" alt="Add to Cart" width="20" height="20" />
+                        <img src="/assets/icons/cart.svg" alt="Add to Cart" width="20" height="20" />
                     </button>
                 </div>
                 <!-- @if (product.isNew) { -->

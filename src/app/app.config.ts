@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, ErrorHandler, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -6,6 +6,7 @@ import { HttpClient, provideHttpClient, withInterceptors, withXsrfConfiguration 
 import { authInterceptor } from './components/auth/auth.interceptor';
 import { AuthService } from './components/auth/auth.service';
 import { lastValueFrom } from 'rxjs';
+import { GlobalErrorHandler } from './handlers/error-hadler';
 
 function initializeApp(authService: AuthService) {
   return () => {
@@ -21,6 +22,13 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
+
+    {
+      provide: ErrorHandler,
+      useClass: GlobalErrorHandler
+    },
+
+
     provideHttpClient(
       withInterceptors([authInterceptor]), // Register it here
       withXsrfConfiguration({
@@ -44,5 +52,6 @@ export const appConfig: ApplicationConfig = {
       // Return a Promise (Angular waits for this to resolve)
       return lastValueFrom(authService.checkAuth());
     }),
+
   ],
 };

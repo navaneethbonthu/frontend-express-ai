@@ -7,7 +7,7 @@ import { catchError, EMPTY, Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ProductListService {
-  private API = 'http://localhost:3000/api';
+  private API = '/api';
 
   // dependencies
   private readonly http = inject(HttpClient);
