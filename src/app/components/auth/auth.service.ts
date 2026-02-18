@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { BehaviorSubject, catchError, map, Observable, of, Subject, tap } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
 import { AuthResponse, User } from './interface';
 import { Router } from '@angular/router';
 
@@ -13,14 +13,8 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-
-  // currentUserSubject$ = new BehaviorSubject<User | null>(this.getUserFromStorage());
-  // public currentUser$ = this.currentUserSubject$.asObservable();
-  // public isAuthenticated$ = this.currentUser$.pipe(map((user) => !!user));
-  // public isAdmin$ = this.currentUser$.pipe(map(user => user?.role === 'ADMIN'));
-
-
-  currentUser = signal<User | null>(null)
+  currentUser = signal<User | null>(null);
+  // isInitialized = signal(false);
   isAuthenticated = computed(() => {
     return this.currentUser() ? true : false
   })
@@ -31,6 +25,9 @@ export class AuthService {
 
 
   constructor() { }
+
+
+
 
   signup(credentials: { email: string, password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API}/signup`, credentials).pipe(
@@ -47,25 +44,15 @@ export class AuthService {
         // Browser automatically sets the cookie here.
         // We just update our application state.
         this.currentUser.set(response.user);
+        console.log('Authservice login user', this.currentUser()?.email, this.currentUser()?.role);
+
       })
     );
   }
 
 
 
-  // private setSession(authResult: AuthResponse): void {
-  //   localStorage.setItem(this.TOKEN_KEY, authResult.token);
-  //   localStorage.setItem(this.USER_KEY, JSON.stringify(authResult.user));
-  //   this.currentUserSubject$.next(authResult.user);
-  // }
 
-  // private getUserFromStorage(): User | null {
-  //   const user = localStorage.getItem(this.USER_KEY);
-  //   return user ? JSON.parse(user) : null;
-  // }
-  // getToken(): string | null {
-  //   return localStorage.getItem(this.TOKEN_KEY);
-  // }
 
   logout(): void {
 
@@ -80,22 +67,44 @@ export class AuthService {
     })
 
 
-    // localStorage.removeItem(this.TOKEN_KEY);
-    // localStorage.removeItem(this.USER_KEY);
-    // this.currentUserSubject$.next(null);
+
   }
 
 
+  // checkAuth(): Observable<any> {
+  //   return this.http.get<User>(`${this.API}/me`, {
+  //     withCredentials: true // <--- FORCE IT HERE
+  //   }).pipe(
+  //     map(user => {
+  //       this.currentUser.set(user);
+  //       console.log('CheckAuth User', this.currentUser()?.role);
+  //       console.log('CheckAuth User', this.currentUser()?.email, this.currentUser()?.name);
+
+  //       return true;
+  //     }),
+  //     catchError(() => {
+  //       // Error: We are NOT logged in (401 or Network error)
+  //       this.currentUser.set(null);
+  //       // this.isInitialized.set(true);
+  //       // Return null so the app can still start up without crashing
+  //       return of(null);
+  //     })
+  //   )
+  // }
+
+  getCsrfToken(): Observable<any> {
+    return this.http.get(`${this.API}/csrf-token`);
+  }
+
   checkAuth(): Observable<any> {
-    return this.http.post<User>(`${this.API}/me`, {}).pipe(
-      map(user => {
-        this.currentUser.set(user);
-        return true;
-      }),
+    // First get CSRF token, then check current user
+    return this.getCsrfToken().pipe(
+      switchMap(() => this.http.get<User>(`${this.API}/me`)),
+      tap(user => this.currentUser.set(user)),
       catchError(() => {
         this.currentUser.set(null);
-        return of(true);
+        return of(null);
       })
-    )
+    );
   }
 }

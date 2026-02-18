@@ -6,6 +6,9 @@
 
         <nav class="nav">
             <a routerLink="/home" routerLinkActive="active" class="nav-link">home</a>
+            @if (!authService.isAuthenticated()) {
+            <a routerLink="/login" routerLinkActive="active" class="nav-link">Login</a>
+            }
             @if (authService.isAuthenticated()) {
             <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
             @if (authService.isAdmin()) {
@@ -27,6 +30,7 @@
                 <span class="cart-count">{{ cartService.cartItems().length }}</span>
             </a>
             <a routerLink="/login" class="btn btn-danger" (click)="logout()">Logout</a>
+            <span>{{authService.currentUser()?.email}}</span>
         </div>
         }
     </div>

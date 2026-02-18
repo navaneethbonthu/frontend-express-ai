@@ -1,14 +1,20 @@
-import { APP_INITIALIZER, ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
 import { authInterceptor } from './components/auth/auth.interceptor';
 import { AuthService } from './components/auth/auth.service';
 import { lastValueFrom } from 'rxjs';
 
 function initializeApp(authService: AuthService) {
-  return () => lastValueFrom(authService.checkAuth())
+  return () => {
+    return lastValueFrom(authService.checkAuth()).then((res) => {
+      console.log('APP_INITIALIZER: Auth check finished', res); // DEBUG LOG
+    }).catch(err => {
+      console.log('APP_INITIALIZER: Auth check failed', err); // DEBUG LOG
+    });
+  };
 }
 
 export const appConfig: ApplicationConfig = {
@@ -17,12 +23,26 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([authInterceptor]), // Register it here
+      withXsrfConfiguration({
+        cookieName: 'XSRF-TOKEN',     // Backend cookieName
+        headerName: 'x-xsrf-token',   // Backend getCsrfTokenFromRequest
+      })
     ),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeApp,
-      deps: [AuthService],
-      multi: true,
-    }
+    // {
+    //   provide: APP_INITIALIZER,
+    //   useFactory: initializeApp,
+    //   deps: [AuthService],
+    //   multi: true,
+    // }
+
+    provideAppInitializer(() => {
+      // Use inject() to get your service
+      const authService = inject(AuthService);
+
+      console.log('App starting: Fetching CSRF and User...');
+
+      // Return a Promise (Angular waits for this to resolve)
+      return lastValueFrom(authService.checkAuth());
+    }),
   ],
 };

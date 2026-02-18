@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { inject } from '@angular/core';
 import { AuthService } from './auth.service';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'app-auth',
@@ -186,17 +187,19 @@ export class AuthComponent {
   onSubmit() {
     if (this.authForm.valid) {
       const { email, password } = this.authForm.getRawValue();
-      this.authService.login({ email: email!, password: password! }).subscribe({
-        next: (response) => {
-          if (response.token) {
-            this.authForm.reset();
-            this.router.navigate(['/products']);
-          }
-        },
-        error: (error) => {
-          console.error('Login error:', error);
-        },
-      });
+
+
+      this.authService.login({ email: email!, password: password! }).pipe(
+        tap((res) => {
+          console.log("submited form", res);
+          this.authForm.reset();
+          this.router.navigate(['/products']);
+
+        })
+      )
+        .subscribe({
+
+        });
     }
   }
 }

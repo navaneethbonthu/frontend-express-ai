@@ -10,9 +10,9 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   if (authService.currentUser()) {
     return true;
-  } else {
-    return false;
   }
+  // Not logged in? Redirect to login
+  return router.createUrlTree(['/login']);
 
   // return authService.isAuthenticated.pipe(
   //   take(1),
