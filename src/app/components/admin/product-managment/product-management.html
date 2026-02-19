@@ -1,0 +1,59 @@
+<div class="product-management-container">
+    <header class="management-header">
+        <h2>Product Management</h2>
+        <button class="btn btn-primary" (click)="openAddProductOverlay()">
+            <span class="icon">+</span> Add New Product
+        </button>
+    </header>
+
+    <div class="search-filter-bar">
+        <input type="text" placeholder="Search products..." (input)="onSearch($event)" class="form-control" />
+    </div>
+
+    <div class="product-list-section">
+        @if (productListService._ApiStatus() === 'loading') {
+        <div class="loading-state">Loading products...</div>
+        } @else if (productListService._ApiStatus() === 'error') {
+        <div class="error-state">Failed to load products.</div>
+        } @else {
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (product of productListService._Products(); track product.id) {
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category.name }}</td>
+                    <td>{{ product.price | currency }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-icon btn-edit" title="Edit"
+                                (click)="openAddProductOverlay(product)">✏️</button>
+                            <button class="btn btn-icon btn-delete" title="Delete">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="4" class="empty-state">No products found.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        }
+    </div>
+</div>
+
+@if (showAddProductPanel()) {
+<app-overlay-panel [isVisible]="showAddProductPanel()" [title]="editingProduct() ? 'Edit Product' : 'Add New Product'"
+    (close)="closeAddProductOverlay()">
+    <app-add-product-form [editingProduct]="editingProduct()"
+        (productAdded)="onProductAdded($event)"></app-add-product-form>
+</app-overlay-panel>
+}

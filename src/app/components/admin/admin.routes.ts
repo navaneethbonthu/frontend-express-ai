@@ -9,12 +9,12 @@ export const ADMIN_ROUTES: Routes = [
       {
         path: 'products',
         loadComponent: () =>
-          import('./product-management.component').then((m) => m.ProductManagementComponent),
+          import('./product-managment/product-management').then((m) => m.ProductManagementComponent),
       },
       {
         path: 'categories',
         loadComponent: () =>
-          import('./category-management.component').then((m) => m.CategoryManagementComponent),
+          import('./category-managment/category-management').then((m) => m.CategoryManagementComponent),
       },
     ],
   },
