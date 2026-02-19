@@ -7,17 +7,18 @@ import { authInterceptor } from './components/auth/auth.interceptor';
 import { AuthService } from './components/auth/auth.service';
 import { lastValueFrom } from 'rxjs';
 import { GlobalErrorHandler } from './handlers/error-hadler';
-import { ErrorInterceptor } from './interceptors/http-interceptor';
+import { ErrorInterceptor } from './interceptors/error-interceptor';
+import { xsrfInterceptor } from './interceptors/xsrf.interceptor';
 
-function initializeApp(authService: AuthService) {
-  return () => {
-    return lastValueFrom(authService.checkAuth()).then((res) => {
-      console.log('APP_INITIALIZER: Auth check finished', res); // DEBUG LOG
-    }).catch(err => {
-      console.log('APP_INITIALIZER: Auth check failed', err); // DEBUG LOG
-    });
-  };
-}
+// function initializeApp(authService: AuthService) {
+//   return () => {
+//     return lastValueFrom(authService.checkAuth()).then((res) => {
+//       console.log('APP_INITIALIZER: Auth check finished', res); // DEBUG LOG
+//     }).catch(err => {
+//       console.log('APP_INITIALIZER: Auth check failed', err); // DEBUG LOG
+//     });
+//   };
+// }
 
 export const appConfig: ApplicationConfig = {
   providers: [

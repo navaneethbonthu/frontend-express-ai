@@ -13,17 +13,19 @@ import { ProductListService } from './product-list.service';
 import { Product } from './interfaces';
 import { CartService } from '../cart/cart.service';
 import StarRatting from '../star-ratting/star-ratting';
+import { CustomUpperCasePipe } from '../../pipes/uppercase-pipe';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CurrencyPipe, NgOptimizedImage, StarRatting],
+  imports: [CurrencyPipe, NgOptimizedImage, StarRatting, CustomUpperCasePipe],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class ProductListComponent implements OnInit {
   protected productListService = inject(ProductListService);
+  title: string = 'Our Products';
 
   category = signal<string | null>(null);
   selectedCategory = computed(() => this.category());
