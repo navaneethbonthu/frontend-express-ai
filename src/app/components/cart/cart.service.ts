@@ -32,11 +32,11 @@ export class CartService {
     });
   }
 
-  remoCartItem(productId: number) {
+  remoCartItem(productId: string) {
     this.cartItems.update((items) => items.filter((item) => item.id !== productId));
   }
 
-  updateQuantity(productId: number, quantity: number) {
+  updateQuantity(productId: string, quantity: number) {
     this.cartItems.update((items) =>
       items.map((item) => (item.id === productId ? { ...item, quantity } : item)),
     );

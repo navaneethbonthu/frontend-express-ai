@@ -35,7 +35,8 @@
                         <div class="action-buttons">
                             <button class="btn btn-icon btn-edit" title="Edit"
                                 (click)="openAddProductOverlay(product)">✏️</button>
-                            <button class="btn btn-icon btn-delete" title="Delete">🗑️</button>
+                            <button class="btn btn-icon btn-delete" title="Delete"
+                                (click)="onAdminDeleteProduct(product.id)">🗑️</button>
                         </div>
                     </td>
                 </tr>

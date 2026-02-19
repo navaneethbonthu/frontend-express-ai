@@ -35,11 +35,13 @@ export default class ProductListComponent implements OnInit {
   public cartService = inject(CartService);
 
   constructor() {
-    this.productListService.getAllProducts();
+    // this.productListService.getAllProducts();
+    this.productListService.updateFilters('', '');
     this.productListService.getAllCategories();
     effect(() => {
       const currentCategory = this.category();
-      this.productListService.getAllProducts(currentCategory, this.searchQuery());
+      // this.productListService.getAllProducts(currentCategory, this.searchQuery());
+      this.productListService.updateFilters(currentCategory, this.searchQuery());
     });
   }
 

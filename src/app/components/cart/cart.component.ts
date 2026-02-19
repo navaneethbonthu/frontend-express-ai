@@ -322,10 +322,10 @@ interface CartItem {
 })
 export class CartComponent {
   public cartService = inject(CartService);
-  removeItem(productId: number) {
+  removeItem(productId: string) {
     this.cartService.remoCartItem(productId);
   }
-  updateQuantity(productId: number, change: number) {
+  updateQuantity(productId: string, change: number) {
     const currentItems = this.cartService.cartItems();
     const item = currentItems.find((i) => i.id === productId);
     if (item) {

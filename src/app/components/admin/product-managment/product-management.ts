@@ -26,12 +26,14 @@ export class ProductManagementComponent implements OnInit {
   editingProduct = signal<Product | null>(null);
 
   ngOnInit() {
-    this.productListService.getAllProducts();
+    // this.productListService.getAllProducts();
+    this.productListService.updateFilters('', '');
   }
 
   onSearch(event: Event) {
     const searchTerm = (event.target as HTMLInputElement).value;
-    this.productListService.getAllProducts('', searchTerm);
+    // this.productListService.getAllProducts('', searchTerm);
+    this.productListService.updateFilters(null, searchTerm);
   }
 
   openAddProductOverlay(productToEdit: Product | null = null) {
@@ -62,7 +64,8 @@ export class ProductManagementComponent implements OnInit {
 
     operation$.subscribe({
       next: () => {
-        this.productListService.getAllProducts();
+        // this.productListService.getAllProducts();
+        this.productListService.updateFilters('', '');
         this.closeAddProductOverlay();
       },
       error: (err) => {
@@ -70,5 +73,9 @@ export class ProductManagementComponent implements OnInit {
         // TODO: Implement user-facing error notification
       },
     });
+  }
+
+  onAdminDeleteProduct(productId: string) {
+    this.productListService.deleteProduct(productId)
   }
 }
