@@ -30,6 +30,8 @@ export class AddProductFormComponent implements OnInit {
 
   constructor() {
     this.productListService.getAllCategories();
+    console.log('all categoryes', this.categories());
+
 
     effect(() => {
       const product = this.editingProduct();
@@ -59,6 +61,7 @@ export class AddProductFormComponent implements OnInit {
     if (this.addProductForm.valid) {
       const formValue = this.addProductForm.value;
       const payload = {
+        id: this.editingProduct()?.id,
         name: formValue.name,
         price: formValue.price,
         description: formValue.description,

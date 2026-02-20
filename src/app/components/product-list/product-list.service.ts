@@ -124,7 +124,9 @@ export class ProductListService implements OnDestroy {
     );
   }
 
-  updateProduct(productId: string | number, updatedProduct: any): Observable<any> {
+  updateProduct(productId: string | number, updatedProduct: Product) {
+    console.log('update product apis');
+
     return this.http.patch(`${this.API}/products/${productId}`, updatedProduct).pipe(
       tap(() => {
         // Force refresh immediately after update
@@ -133,12 +135,12 @@ export class ProductListService implements OnDestroy {
     );
   }
 
-  deleteProduct(productId: string): Observable<any> {
+  deleteProduct(productId: string) {
     console.log('deleteProduct', `${this.API}/products/${productId}`);
 
-    return this.http.delete(`${this.API}/products/${productId}`).pipe(
+    this.http.delete(`${this.API}/products/${productId}`).pipe(
       tap(() => this.updateFilters(this.currentFilters().categoryId))
-    );
+    ).subscribe()
   }
 
   getAllCategories() {

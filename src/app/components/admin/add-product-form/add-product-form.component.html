@@ -25,9 +25,9 @@
         <label for="productCategory">Category</label>
         <select id="productCategory" formControlName="category" class="form-control"
             [class.is-invalid]="addProductForm.get('category')?.invalid && addProductForm.get('category')?.touched">
-            <option value="">--Select Category--</option>
-            @for (category of categories(); track category.id) {
-            <option [value]="category.id">{{ category.name }}</option>
+            <option value="" disabled selected hidden>Select category</option>
+            @for (cat of categories(); track cat.id) {
+            <option [value]="cat.id">{{ cat.name }}</option>
             }
         </select>
         @if (addProductForm.get('category')?.invalid && addProductForm.get('category')?.touched) {

@@ -31,8 +31,10 @@ export class AuthService {
 
   signup(credentials: { email: string, password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API}/signup`, credentials).pipe(
-      tap(response => {
+      switchMap(response => {
         this.currentUser.set(response.user);
+        // REFRESH CSRF: Now that we have a userId, get the "Authenticated" token
+        return this.getCsrfToken().pipe(map(() => response));
       })
     );
   }
@@ -40,12 +42,12 @@ export class AuthService {
 
   login(credentials: { email: string, password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API}/login`, credentials).pipe(
-      tap(response => {
-        // Browser automatically sets the cookie here.
-        // We just update our application state.
+      switchMap(response => {
         this.currentUser.set(response.user);
-        console.log('Authservice login user', this.currentUser()?.email, this.currentUser()?.role);
+        console.log('Login successful. Refreshing CSRF for session rotation...');
 
+        // REFRESH CSRF: Crucial for v3.x getSessionIdentifier logic
+        return this.getCsrfToken().pipe(map(() => response));
       })
     );
   }
@@ -55,52 +57,32 @@ export class AuthService {
 
 
   logout(): void {
-
     this.http.post(`${this.API}/logout`, {}).subscribe({
       next: () => {
         this.currentUser.set(null);
+        // After logout, you might want to get an "anonymous" token again,
+        // but navigating to login usually triggers a refresh anyway.
         this.router.navigate(['/login']);
       },
-      error: (error) => {
-        console.error('Logout failed', error)
-      }
-    })
-
-
-
+      error: (error) => console.error('Logout failed', error)
+    });
   }
 
 
-  // checkAuth(): Observable<any> {
-  //   return this.http.get<User>(`${this.API}/me`, {
-  //     withCredentials: true // <--- FORCE IT HERE
-  //   }).pipe(
-  //     map(user => {
-  //       this.currentUser.set(user);
-  //       console.log('CheckAuth User', this.currentUser()?.role);
-  //       console.log('CheckAuth User', this.currentUser()?.email, this.currentUser()?.name);
-
-  //       return true;
-  //     }),
-  //     catchError(() => {
-  //       // Error: We are NOT logged in (401 or Network error)
-  //       this.currentUser.set(null);
-  //       // this.isInitialized.set(true);
-  //       // Return null so the app can still start up without crashing
-  //       return of(null);
-  //     })
-  //   )
-  // }
 
   getCsrfToken(): Observable<any> {
     return this.http.get(`${this.API}/csrf-token`);
   }
 
+
+
   checkAuth(): Observable<any> {
-    // First get CSRF token, then check current user
     return this.getCsrfToken().pipe(
       switchMap(() => this.http.get<User>(`${this.API}/me`)),
-      tap(user => this.currentUser.set(user)),
+      tap(user => {
+        this.currentUser.set(user);
+        console.log('Session restored:', user.email);
+      }),
       catchError(() => {
         this.currentUser.set(null);
         return of(null);
