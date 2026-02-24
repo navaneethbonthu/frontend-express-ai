@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { ApiStatus, Category, Product, ProductResponse } from './interfaces';
 import { catchError, EMPTY, Observable, Subject, switchMap, takeUntil, tap, timer, retry } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
 
 @Injectable({
   providedIn: 'root',
@@ -47,11 +48,48 @@ export class ProductListService implements OnDestroy {
 
   // --- 3. POLLING CONTROL ---
   private stopPolling$ = new Subject<void>();
+  private socket: Socket;
+
 
   constructor() {
     // Start polling immediately when service is initialized
     this.startLiveUpdates();
     this.getAllCategories(); // Fetch categories once on load
+
+    this.socket = io(this.API);
+    this.setupSocketListeners();
+  }
+
+  private setupSocketListeners() {
+    this.socket.on('product:created', (newProduct) => {
+      this.productsState.update((state) => ({
+        ...state,
+        data: [newProduct, ...state.data],
+        pagination: { ...state.pagination, totalItems: state.pagination.totalPages + 1 },
+      }))
+    })
+
+
+    this.socket.on("product: deleted", (deltedId: string) => {
+      this.productsState.update((state) => ({
+        ...state,
+        data: state.data.filter(product =>
+          product.id !== deltedId,
+        ),
+        pagination: { ...state.pagination, totalItems: state.pagination.totalItems - 1 }
+      }))
+    })
+
+
+    this.socket.on('product: updated', (updatedProduct) => {
+      this.productsState.update((state) => ({
+        ...state,
+        data: state.data.map(product =>
+          product.id === updatedProduct.id ? updatedProduct : product
+        )
+      }))
+    })
+
   }
 
   // --- 4. CORE POLLING LOGIC ---
@@ -159,5 +197,6 @@ export class ProductListService implements OnDestroy {
 
   ngOnDestroy() {
     this.stopLiveUpdates();
+    this.socket.disconnect();
   }
 }

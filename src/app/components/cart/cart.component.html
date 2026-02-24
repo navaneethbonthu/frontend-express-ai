@@ -1,0 +1,118 @@
+
+    <div class="container">
+      <h1 class="section-title">Your Cart</h1>
+
+      @if (cartService.totalCount() > 0) {
+        <div class="cart-layout">
+          <div class="cart-items">
+            <div class="cart-header">
+              <span class="col-product">Product</span>
+              <span class="col-price">Price</span>
+              <span class="col-quantity">Quantity</span>
+              <span class="col-total">Total</span>
+              <span class="col-action"></span>
+            </div>
+
+            @for (item of cartService.cartItems(); track item.id) {
+              <div class="cart-item">
+                <div class="col-product product-cell">
+                  <div class="product-image">
+                    <img [src]="item.imageUrl" [alt]="item.name" width="80" height="80" />
+                  </div>
+                  <div class="product-info">
+                    <h3 class="product-name">{{ item.name }}</h3>
+                    <span class="product-sku">SKU: SS-{{ item.id }}</span>
+                  </div>
+                </div>
+                <div class="col-price">
+                  <span class="mobile-label">Price:</span>
+                  {{ item.price | currency }}
+                </div>
+                <div class="col-quantity">
+                  <span class="mobile-label">Qty:</span>
+                  <div class="quantity-controls">
+                    <button (click)="updateQuantity(item.id, -1)">-</button>
+                    <span>{{ item.quantity }}</span>
+                    <button (click)="updateQuantity(item.id, 1)">+</button>
+                  </div>
+                </div>
+                <div class="col-total">
+                  <span class="mobile-label">Total:</span>
+                  {{ item.price * item.quantity | currency }}
+                </div>
+                <div class="col-action">
+                  <button class="remove-btn" (click)="removeItem(item.id)">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="cart-summary">
+            <div class="summary-card">
+              <h3>Order Summary</h3>
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span>{{ cartService.totalPrice() | currency }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Shipping</span>
+                <span>Free</span>
+              </div>
+              <div class="summary-row">
+                <span>Tax</span>
+                <span>No Tax</span>
+              </div>
+              <div class="summary-total">
+                <span>Total</span>
+                <span>{{ cartService.totalPrice() | currency }}</span>
+              </div>
+              <button class="btn btn-primary btn-block checkout-btn" routerLink="/checkout">
+                Proceed to Checkout
+              </button>
+              <a routerLink="/products" class="continue-shopping">Continue Shopping</a>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="empty-cart">
+          <div class="empty-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="8" cy="21" r="1" />
+              <circle cx="19" cy="21" r="1" />
+              <path
+                d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"
+              />
+            </svg>
+          </div>
+          <h2>Your cart is empty</h2>
+          <p>Looks like you haven't added anything to your cart yet.</p>
+          <a routerLink="/products" class="btn btn-primary">Start Shopping</a>
+        </div>
+      }
+    </div>
