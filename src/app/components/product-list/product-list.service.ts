@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { ApiStatus, Category, Product, ProductResponse } from './interfaces';
-import { catchError, EMPTY, Observable, Subject, switchMap, takeUntil, tap, timer, retry } from 'rxjs';
+import { catchError, EMPTY, Observable, Subject, switchMap, takeUntil, tap, timer, retry, map } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 
 @Injectable({
@@ -195,6 +195,56 @@ export class ProductListService implements OnDestroy {
       });
   }
 
+  addCategory(categoryData: { name: string }): Observable<Category> {
+    // console.log('addCategory called');
+    // 1. Make the POST request to your backend
+    return this.http.post<Category>(`${this.API}/categories`, categoryData).pipe(
+      tap((newCategory) => {
+        // 2. OPTIONAL: Update the local signal state immediately 
+        // so you don't have to wait for the next getAllCategories() call.
+        this.categoriesState.update(state => ({
+          ...state,
+          data: [...state.data, newCategory]
+        }));
+
+      }),
+      catchError((error) => {
+        console.error('Error adding category:', error);
+        throw error;
+      })
+    );
+  }
+
+
+  deleteCategory(catorgyId: string): Observable<void> {
+    return this.http.delete<void>(`${this.API}/categories/${catorgyId}`).pipe(
+      tap(() => {
+        this.categoriesState.update((state) => ({
+          ...state,
+          data: state.data.filter(item => item.id !== catorgyId)
+        }))
+      }),
+      catchError(() => {
+        this.categoriesState.update(s => ({ ...s, apiStatus: 'error' }));
+        return EMPTY;
+      })
+    )
+
+  }
+
+
+  updateCategory(id: string, category: { name: string }): Observable<Category> {
+    console.log('updateCategory called');
+
+    return this.http.post<Category>(`${this.API}/categories/${id}`, { category }).pipe(
+      tap((updatedCategory) => {
+        this.categoriesState.update((state) => ({
+          ...state,
+          data: state.data.map(c => c.id === id ? updatedCategory : c)
+        }))
+      })
+    )
+  }
   ngOnDestroy() {
     this.stopLiveUpdates();
     this.socket.disconnect();
