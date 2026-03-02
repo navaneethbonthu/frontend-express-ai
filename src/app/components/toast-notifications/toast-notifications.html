@@ -4,6 +4,15 @@
     <button (click)="showToast('Battery low', 'warning')">Send Warning</button>
 </div>
 
+<button (click)="show = !show">
+    {{ show ? 'Destroy Component' : 'Create Component' }}
+</button>
+
+@if (show) {
+<app-cart></app-cart>
+}
+
+
 <!-- TOAST CONTAINER (Fixed in corner) -->
 <div class="toast-container">
     @for (toast of notifications(); track toast.id) {

@@ -1,4 +1,7 @@
 import { Component, signal } from '@angular/core';
+import { CartComponent } from "../cart/cart.component";
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 export interface Toast {
   id: number;
@@ -8,11 +11,12 @@ export interface Toast {
 
 @Component({
   selector: 'app-toast-notifications',
-  imports: [],
+  imports: [CartComponent, ReactiveFormsModule, FormsModule],
   templateUrl: './toast-notifications.html',
   styleUrl: './toast-notifications.scss',
 })
 export class ToastNotifications {
+  show: boolean = false;
 
   notifications = signal<Toast[]>([]);
 

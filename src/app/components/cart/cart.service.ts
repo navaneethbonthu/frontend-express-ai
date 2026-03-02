@@ -1,5 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { Product } from '../product-list/interfaces';
+import { interval } from 'rxjs';
 
 export interface CartItem extends Product {
   quantity: number;
@@ -15,7 +16,9 @@ export class CartService {
     this.items().reduce((acc, item) => acc + item.price * item.quantity, 0),
   );
 
-  public totalCount = computed(() => this.items().reduce((acc, item) => acc + item.quantity, 0));
+  public totalItemsCount = computed(() => this.items().reduce((acc, item) => acc + item.quantity, 0));
+
+  dataStream$ = interval(50);
 
   addToCart(product: Product) {
     console.log('Adding to cart:', product);
