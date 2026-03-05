@@ -30,7 +30,7 @@
                 <span class="cart-count">{{ cartService.cartItems().length }}</span>
             </a>
             <a routerLink="/login" class="btn btn-danger" (click)="logout()">Logout</a>
-            <span>{{authService.currentUser()?.email}}</span>
+            <span [routerLink]="'/profile'">{{authService.currentUser()?.email}}</span>
         </div>
         }
     </div>

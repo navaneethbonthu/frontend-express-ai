@@ -1,0 +1,55 @@
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="avatar-placeholder">
+                {{ authService.currentUser()?.name?.charAt(0) }}
+            </div>
+            <div class="profile-info">
+                <h2>{{ authService.currentUser()?.name }}</h2>
+                <p class="role-badge">{{ authService.currentUser()?.role }}</p>
+            </div>
+        </div>
+
+        <div class="profile-body">
+            <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input id="fullName" type="text" formControlName="name" class="form-input"
+                        [class.error]="isInvalid('name')" />
+                    @if (isInvalid('name')) {
+                    <span class="error-message">Full Name is required.</span>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="emailAddress">Email Address</label>
+                    <input id="emailAddress" type="email" formControlName="email" class="form-input"
+                        [class.error]="isInvalid('email')" />
+                    @if (isInvalid('email')) {
+                    <span class="error-message">A valid email is required.</span>
+                    }
+                </div>
+
+                <div class="info-section">
+                    <small>Member since: {{ authService.currentUser()?.createdAt | date:'longDate' }}</small>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn-save"
+                        [disabled]="profileForm.invalid || profileForm.pristine || isLoading()">
+                        {{ isLoading() ? 'Saving...' : 'Save Changes' }}
+                    </button>
+                    <button type="button" class="btn-cancel" (click)="resetForm()" [disabled]="profileForm.pristine">
+                        Discard
+                    </button>
+                </div>
+            </form>
+
+            @if (message()) {
+            <div class="status-message" [class.success]="isSuccess()">
+                {{ message() }}
+            </div>
+            }
+        </div>
+    </div>
+</div>
