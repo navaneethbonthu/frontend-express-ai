@@ -5,11 +5,15 @@ import { publicGuard } from './components/auth/public.guard';
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   {
+    path: 'home',
+    loadComponent: () => import('./components/home/home').then((m) => m.Home)
+  },
+  {
     path: 'profile',
     loadComponent: () => import('./components/user-profile/user-profile').then((m) => m.UserProfile)
   },
   {
-    path: 'home',
+    path: 'toast',
     loadComponent: () => import('./components/toast-notifications/toast-notifications').then((m) => m.ToastNotifications)
   },
   {
