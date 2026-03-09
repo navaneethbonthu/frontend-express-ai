@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { ApiStatus, Category, Product, ProductResponse } from './interfaces';
-import { catchError, EMPTY, Observable, Subject, switchMap, takeUntil, tap, timer, retry, map } from 'rxjs';
+import { catchError, EMPTY, Observable, tap } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 
 @Injectable({
@@ -9,18 +9,15 @@ import { io, Socket } from 'socket.io-client';
 })
 export class ProductListService implements OnDestroy {
   private readonly http = inject(HttpClient);
-  private API = '/api';
+  // Base URL for the Socket connection (adjust port if necessary)
+  private readonly SOCKET_URL = 'http://localhost:3000';
+  private readonly API = '/api';
+
+  // private socket: Socket;
 
   // --- 1. STATE SIGNALS ---
-  // Store current filters in a signal so polling always uses the latest values
-  private currentFilters = signal<{ categoryId: string; search: string; page: number; limit: number }>({
-    categoryId: '',
-    search: '',
-    page: 1,
-    limit: 10
-  });
+  private currentFilters = signal({ categoryId: '', search: '', page: 1, limit: 10 });
 
-  // Main State for Products
   private productsState = signal<{
     data: Product[];
     pagination: { totalItems: number; currentPage: number; totalPages: number; itemsPerPage: number };
@@ -36,92 +33,60 @@ export class ProductListService implements OnDestroy {
     apiStatus: 'idle',
   });
 
-  // --- 2. SELECTORS (Computed) ---
+  // --- 2. SELECTORS ---
   public readonly _Products = computed(() => this.productsState().data);
   public readonly _TotalItems = computed(() => this.productsState().pagination.totalItems);
-  public readonly _CurrentPage = computed(() => this.productsState().pagination.currentPage);
-  public readonly _TotalPages = computed(() => this.productsState().pagination.totalPages);
   public readonly _ApiStatus = computed(() => this.productsState().apiStatus);
-
   public readonly _Categories = computed(() => this.categoriesState().data);
-  public readonly _CategoriesApiStatus = computed(() => this.categoriesState().apiStatus);
-
-  // --- 3. POLLING CONTROL ---
-  private stopPolling$ = new Subject<void>();
-  private socket: Socket;
-
 
   constructor() {
-    // Start polling immediately when service is initialized
-    this.startLiveUpdates();
-    this.getAllCategories(); // Fetch categories once on load
+    // 1. Initial Load of data
+    this.getAllProducts();
+    this.getAllCategories();
 
-    this.socket = io(this.API);
-    this.setupSocketListeners();
+    // 2. Initialize Socket.io
+    // this.socket = io(this.SOCKET_URL);
+    // this.setupSocketListeners();
   }
 
-  private setupSocketListeners() {
-    this.socket.on('product:created', (newProduct) => {
-      this.productsState.update((state) => ({
-        ...state,
-        data: [newProduct, ...state.data],
-        pagination: { ...state.pagination, totalItems: state.pagination.totalPages + 1 },
-      }))
-    })
+  // private setupSocketListeners() {
+  //   // Note: Ensure strings match your backend io.emit() strings exactly
 
+  //   this.socket.on('product:created', (newProduct: Product) => {
+  //     this.productsState.update((state) => ({
+  //       ...state,
+  //       data: [newProduct, ...state.data],
+  //       pagination: {
+  //         ...state.pagination,
+  //         totalItems: state.pagination.totalItems + 1
+  //       },
+  //     }));
+  //   });
 
-    this.socket.on("product: deleted", (deltedId: string) => {
-      this.productsState.update((state) => ({
-        ...state,
-        data: state.data.filter(product =>
-          product.id !== deltedId,
-        ),
-        pagination: { ...state.pagination, totalItems: state.pagination.totalItems - 1 }
-      }))
-    })
+  //   this.socket.on("product:deleted", (deletedId: string) => {
+  //     this.productsState.update((state) => ({
+  //       ...state,
+  //       data: state.data.filter(p => p.id !== deletedId),
+  //       pagination: {
+  //         ...state.pagination,
+  //         totalItems: state.pagination.totalItems - 1
+  //       }
+  //     }));
+  //   });
 
+  //   this.socket.on('product:updated', (updatedProduct: Product) => {
+  //     this.productsState.update((state) => ({
+  //       ...state,
+  //       data: state.data.map(p => p.id === updatedProduct.id ? updatedProduct : p)
+  //     }));
+  //   });
+  // }
 
-    this.socket.on('product: updated', (updatedProduct) => {
-      this.productsState.update((state) => ({
-        ...state,
-        data: state.data.map(product =>
-          product.id === updatedProduct.id ? updatedProduct : product
-        )
-      }))
-    })
+  // --- 3. API METHODS (REST) ---
 
-  }
+  getAllProducts() {
+    this.productsState.update(s => ({ ...s, apiStatus: 'loading' }));
 
-  // --- 4. CORE POLLING LOGIC ---
-  private startLiveUpdates() {
-    // Timer emits 0 immediately, then every 30 seconds
-    timer(0, 30000)
-      .pipe(
-        takeUntil(this.stopPolling$),
-        tap(() => this.productsState.update(s => ({ ...s, apiStatus: 'loading' }))),
-        // SwitchMap cancels previous request if new 30s timer hits OR if filters change
-        switchMap(() => this.fetchProductsFromApi().pipe(
-          retry(2), // Retry failed requests twice before erroring
-          catchError((error) => {
-            console.error('Polling Error:', error);
-            this.productsState.update(s => ({ ...s, apiStatus: 'error' }));
-            return EMPTY; // Keep the observable alive
-          })
-        )),
-
-      )
-      .subscribe((response) => {
-        if (response) {
-          this.productsState.set({
-            data: response.data,
-            pagination: response.pagination,
-            apiStatus: 'success',
-          });
-        }
-      });
-  }
-
-  private fetchProductsFromApi(): Observable<ProductResponse> {
     const filters = this.currentFilters();
     let params = new HttpParams()
       .set('page', filters.page)
@@ -130,17 +95,16 @@ export class ProductListService implements OnDestroy {
     if (filters.categoryId) params = params.set('categoryId', filters.categoryId);
     if (filters.search) params = params.set('search', filters.search);
 
-    return this.http.get<ProductResponse>(`${this.API}/products`, { params });
+    this.http.get<ProductResponse>(`${this.API}/products`, { params }).subscribe({
+      next: (res) => this.productsState.set({
+        data: res.data,
+        pagination: res.pagination,
+        apiStatus: 'success'
+      }),
+      error: () => this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
+    });
   }
 
-  stopLiveUpdates() {
-    this.stopPolling$.next();
-  }
-
-  // --- 5. PUBLIC METHODS ---
-
-  // Instead of fetching manually, we update the filter signal.
-  // The polling logic (switchMap) detects this and fetches immediately.
   updateFilters(categoryId: string | null = '', search: string = '', page: number = 1) {
     this.currentFilters.update(current => ({
       ...current,
@@ -148,105 +112,73 @@ export class ProductListService implements OnDestroy {
       search: search || '',
       page: page
     }));
-    // We restart polling to force an immediate fetch without waiting 30s
-    this.stopLiveUpdates();
-    this.startLiveUpdates();
+    this.getAllProducts(); // Trigger fresh fetch when filters change
   }
 
   addProduct(newProduct: any): Observable<any> {
-    return this.http.post(`${this.API}/products`, newProduct).pipe(
-      tap(() => {
-        // Force refresh immediately after add
-        this.updateFilters(this.currentFilters().categoryId, this.currentFilters().search);
-      })
-    );
+    return this.http.post(`${this.API}/products`, newProduct);
   }
 
-  updateProduct(productId: string | number, updatedProduct: Product) {
-    console.log('update product apis');
-
-    return this.http.patch(`${this.API}/products/${productId}`, updatedProduct).pipe(
-      tap(() => {
-        // Force refresh immediately after update
-        this.updateFilters(this.currentFilters().categoryId, this.currentFilters().search);
-      })
-    );
+  updateProduct(productId: string | number, updatedProduct: any): Observable<any> {
+    return this.http.patch(`${this.API}/products/${productId}`, updatedProduct);
   }
 
-  deleteProduct(productId: string) {
-    console.log('deleteProduct', `${this.API}/products/${productId}`);
+  deleteProduct(productId: string): Observable<any> {
+    console.log('deleteProduct called ', productId);
 
-    this.http.delete(`${this.API}/products/${productId}`).pipe(
-      tap(() => this.updateFilters(this.currentFilters().categoryId))
-    ).subscribe()
+    return this.http.delete(`${this.API}/products/${productId}`);
   }
+
+  // --- CATEGORY METHODS ---
 
   getAllCategories() {
     this.categoriesState.update(s => ({ ...s, apiStatus: 'loading' }));
-    this.http.get<Category[]>(`${this.API}/categories`)
-      .pipe(
-        catchError(() => {
-          this.categoriesState.update(s => ({ ...s, apiStatus: 'error' }));
-          return EMPTY;
-        })
-      )
-      .subscribe((response) => {
-        this.categoriesState.set({ data: response, apiStatus: 'success' });
-      });
+    this.http.get<Category[]>(`${this.API}/categories`).subscribe({
+      next: (res) => this.categoriesState.set({ data: res, apiStatus: 'success' }),
+      error: () => this.categoriesState.update(s => ({ ...s, apiStatus: 'error' }))
+    });
   }
 
   addCategory(categoryData: { name: string }): Observable<Category> {
-    // console.log('addCategory called');
-    // 1. Make the POST request to your backend
     return this.http.post<Category>(`${this.API}/categories`, categoryData).pipe(
-      tap((newCategory) => {
-        // 2. OPTIONAL: Update the local signal state immediately 
-        // so you don't have to wait for the next getAllCategories() call.
-        this.categoriesState.update(state => ({
-          ...state,
-          data: [...state.data, newCategory]
-        }));
-
+      tap((newCat) => {
+        console.log('Category added successfully:', newCat);
+        this.categoriesState.update(s => ({
+          ...s, data: [...s.data, newCat]
+        }))
       }),
       catchError((error) => {
         console.error('Error adding category:', error);
-        throw error;
+        return EMPTY;
       })
     );
   }
 
+  deleteCategory(categoryId: string): Observable<void> {
+    return this.http.delete<void>(`${this.API}/categories/${categoryId}`).pipe(
+      tap(() => this.categoriesState.update(s => ({
+        ...s, data: s.data.filter(c => c.id !== categoryId)
+      })))
+    );
+  }
 
-  deleteCategory(catorgyId: string): Observable<void> {
-    return this.http.delete<void>(`${this.API}/categories/${catorgyId}`).pipe(
-      tap(() => {
-        this.categoriesState.update((state) => ({
-          ...state,
-          data: state.data.filter(item => item.id !== catorgyId)
+  updateCategory(id: string, categoryData: { name: string }): Observable<Category> {
+    // Changed to PATCH and fixed data structure to match industry standard
+    return this.http.patch<Category>(`${this.API}/categories/${id}`, categoryData).pipe(
+      tap((updated) => {
+        console.log('Category updated successfully:', updated);
+        this.categoriesState.update(s => ({
+          ...s, data: s.data.map(c => c.id === id ? updated : c)
         }))
       }),
-      catchError(() => {
-        this.categoriesState.update(s => ({ ...s, apiStatus: 'error' }));
+      catchError((error) => {
+        console.error('Error updating category:', error);
         return EMPTY;
       })
-    )
-
+    );
   }
 
-
-  updateCategory(id: string, category: { name: string }): Observable<Category> {
-    console.log('updateCategory called');
-
-    return this.http.post<Category>(`${this.API}/categories/${id}`, { category }).pipe(
-      tap((updatedCategory) => {
-        this.categoriesState.update((state) => ({
-          ...state,
-          data: state.data.map(c => c.id === id ? updatedCategory : c)
-        }))
-      })
-    )
-  }
   ngOnDestroy() {
-    this.stopLiveUpdates();
-    this.socket.disconnect();
+    // this.socket.disconnect();
   }
 }

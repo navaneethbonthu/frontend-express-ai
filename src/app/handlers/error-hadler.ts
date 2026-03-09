@@ -1,9 +1,9 @@
-import { ErrorHandler } from "@angular/core";
+import { ErrorHandler, inject, NgZone } from "@angular/core";
 
 
 
 export class GlobalErrorHandler implements ErrorHandler {
-    zone: any;
+    private zone = inject(NgZone);
     handleError(error: any): void {
         console.log('Caught by Global Handler:', error)
 

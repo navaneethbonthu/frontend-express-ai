@@ -5,6 +5,7 @@ import { OverlayPanelComponent } from '../overlay-panel.component';
 import { AddProductFormComponent } from '../add-product-form/add-product-form.component';
 import { ProductListService } from '../../product-list/product-list.service';
 import { Product } from '../../product-list/interfaces';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-product-management',
@@ -76,6 +77,15 @@ export class ProductManagementComponent implements OnInit {
   }
 
   onAdminDeleteProduct(productId: string) {
-    this.productListService.deleteProduct(productId)
+    this.productListService.deleteProduct(productId).subscribe(
+      {
+        next: () => {
+          this.productListService.updateFilters('', '');
+        },
+        error: (err) => {
+          console.error(`Failed to load products:`, err);
+        },
+      }
+    );
   }
 }

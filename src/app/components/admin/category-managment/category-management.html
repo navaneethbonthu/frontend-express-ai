@@ -7,11 +7,12 @@
     </header>
 
     <div class="category-list-section">
-        @if (productListService._CategoriesApiStatus() === 'loading') {
+        <!-- @if (productListService.) {
         <div class="loading-state">Loading categories...</div>
         } @else if (productListService._CategoriesApiStatus() === 'error') {
         <div class="error-state">Failed to load categories.</div>
         } @else {
+        } -->
         <table class="category-table">
             <thead>
                 <tr>
@@ -41,7 +42,6 @@
                 }
             </tbody>
         </table>
-        }
     </div>
 </div>
 
@@ -66,6 +66,7 @@
                 (click)="onAddCategory()">
                 Add Category
             </button>
+
         </div>
     </form>
 </app-overlay-panel>
