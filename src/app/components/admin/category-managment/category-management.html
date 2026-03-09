@@ -46,7 +46,8 @@
 </div>
 
 @if (showAddCategoryPanel()) {
-<app-overlay-panel [isVisible]="showAddCategoryPanel()" title="Add Category" (close)="toggleAddCategoryPanel()">
+<app-overlay-panel [isVisible]="showAddCategoryPanel()"
+    title="{{editingCategory()?.id ? ' Edit Category' : 'Add Category'}}" (close)="toggleAddCategoryPanel()">
     <form [formGroup]="addCategoryForm" (ngSubmit)="onAddCategory()">
         <div class="form-group">
             <label for="categoryName">Category Name</label>
@@ -62,9 +63,8 @@
             <button type="button" class="btn btn-secondary" (click)="toggleAddCategoryPanel()">
                 Cancel
             </button>
-            <button type="submit" class="btn btn-primary" [disabled]="addCategoryForm.invalid"
-                (click)="onAddCategory()">
-                Add Category
+            <button type="submit" class="btn btn-primary" [disabled]="addCategoryForm.invalid">
+                {{editingCategory()?.id ? ' Edit' : "Add"}} Category
             </button>
 
         </div>

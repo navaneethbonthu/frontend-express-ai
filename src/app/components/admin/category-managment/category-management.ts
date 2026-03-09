@@ -34,6 +34,7 @@ export class CategoryManagementComponent implements OnInit {
     this.showAddCategoryPanel.update((value) => !value);
     if (!this.showAddCategoryPanel()) {
       this.addCategoryForm.reset();
+      this.editingCategory.set(null);
     }
   }
 
@@ -52,11 +53,11 @@ export class CategoryManagementComponent implements OnInit {
       request$.subscribe({
         next: () => {
           this.toggleAddCategoryPanel();
-          // this.productListService.getAllCategories();
+          this.productListService.getAllCategories();
         },
         error: () => {
           alert('Operation failed')
-          // this.toggleAddCategoryPanel();
+          this.toggleAddCategoryPanel();
         }
       });
 

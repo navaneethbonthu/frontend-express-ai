@@ -141,16 +141,9 @@ export class ProductListService implements OnDestroy {
 
   addCategory(categoryData: { name: string }): Observable<Category> {
     return this.http.post<Category>(`${this.API}/categories`, categoryData).pipe(
-      tap((newCat) => {
-        console.log('Category added successfully:', newCat);
-        this.categoriesState.update(s => ({
-          ...s, data: [...s.data, newCat]
-        }))
-      }),
-      catchError((error) => {
-        console.error('Error adding category:', error);
-        return EMPTY;
-      })
+      tap((newCat) => this.categoriesState.update(s => ({
+        ...s, data: [...s.data, newCat]
+      })))
     );
   }
 
@@ -165,16 +158,9 @@ export class ProductListService implements OnDestroy {
   updateCategory(id: string, categoryData: { name: string }): Observable<Category> {
     // Changed to PATCH and fixed data structure to match industry standard
     return this.http.patch<Category>(`${this.API}/categories/${id}`, categoryData).pipe(
-      tap((updated) => {
-        console.log('Category updated successfully:', updated);
-        this.categoriesState.update(s => ({
-          ...s, data: s.data.map(c => c.id === id ? updated : c)
-        }))
-      }),
-      catchError((error) => {
-        console.error('Error updating category:', error);
-        return EMPTY;
-      })
+      tap((updated) => this.categoriesState.update(s => ({
+        ...s, data: s.data.map(c => c.id === id ? updated : c)
+      })))
     );
   }
 
