@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, inject, OnInit, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { OverlayPanelComponent } from '../overlay-panel.component';
@@ -6,6 +6,7 @@ import { AddProductFormComponent } from '../add-product-form/add-product-form.co
 import { ProductListService } from '../../product-list/product-list.service';
 import { Product } from '../../product-list/interfaces';
 import { switchMap } from 'rxjs';
+import { ProductTable } from '../product-table/product-table';
 
 @Component({
   selector: 'app-product-management',
@@ -15,11 +16,12 @@ import { switchMap } from 'rxjs';
     ReactiveFormsModule,
     OverlayPanelComponent,
     AddProductFormComponent,
-    CurrencyPipe,
+    ProductTable
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: 'product-managment.scss',
-  templateUrl: 'product-management.html'
+  templateUrl: 'product-management.html',
+  encapsulation: ViewEncapsulation.None,
 })
 export class ProductManagementComponent implements OnInit {
   productListService = inject(ProductListService);

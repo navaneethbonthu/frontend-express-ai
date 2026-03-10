@@ -26,13 +26,10 @@ export class CartComponent implements OnInit {
   private destroy$ = new Subject<void>();
   ngOnInit() {
 
-    this.cartService.dataStream$.pipe(takeUntil(this.destroy$)).subscribe(val => {
-
-
-      this.heavyData.push(`Data-${val}`);
-
-      console.log(`[LeakingComponent] Alive and eating memory... ${val}`);
-    });
+    // this.cartService.dataStream$.pipe(takeUntil(this.destroy$)).subscribe(val => {
+    //   this.heavyData.push(`Data-${val}`);
+    //   console.log(`[LeakingComponent] Alive and eating memory... ${val}`);
+    // });
   }
 
   removeItem(productId: string) {

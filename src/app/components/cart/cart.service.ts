@@ -18,7 +18,7 @@ export class CartService {
 
   public totalItemsCount = computed(() => this.items().reduce((acc, item) => acc + item.quantity, 0));
 
-  dataStream$ = interval(50);
+  // dataStream$ = interval(50);
 
   addToCart(product: Product) {
     console.log('Adding to cart:', product);
