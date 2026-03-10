@@ -8,6 +8,7 @@ export class GlobalErrorHandler implements ErrorHandler {
         console.log('Caught by Global Handler:', error)
 
         const message = error.message ? error.message : error.toString()
+        console.log(error.stack);
 
         // 3. UI updates must run inside NgZone to ensure change detection triggers
         this.zone.run(() => {

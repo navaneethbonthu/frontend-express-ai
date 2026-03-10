@@ -8,7 +8,6 @@ import { AuthService } from './components/auth/auth.service';
 import { lastValueFrom } from 'rxjs';
 import { GlobalErrorHandler } from './handlers/error-hadler';
 import { ErrorInterceptor } from './interceptors/error-interceptor';
-import { xsrfInterceptor } from './interceptors/xsrf.interceptor';
 import { encryptionInterceptor } from './interceptors/encryption.interceptor';
 
 // function initializeApp(authService: AuthService) {
@@ -33,7 +32,7 @@ export const appConfig: ApplicationConfig = {
 
 
     provideHttpClient(
-      withInterceptors([authInterceptor, ErrorInterceptor]), // Register it here  encryptionInterceptor
+      withInterceptors([authInterceptor, encryptionInterceptor, ErrorInterceptor]), // Register it here  
 
       withXsrfConfiguration({
         cookieName: 'XSRF-TOKEN',     // Backend cookieName
