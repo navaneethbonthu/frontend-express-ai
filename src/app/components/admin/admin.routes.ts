@@ -5,7 +5,6 @@ export const ADMIN_ROUTES: Routes = [
     path: '',
     loadComponent: () => import('./admin-dashboard/admin-dashboard.component'),
     children: [
-      { path: '', redirectTo: 'products', pathMatch: 'full' },
       {
         path: 'products',
         loadComponent: () =>
@@ -16,6 +15,7 @@ export const ADMIN_ROUTES: Routes = [
         loadComponent: () =>
           import('./category-managment/category-management').then((m) => m.CategoryManagementComponent),
       },
+      { path: '', redirectTo: 'products', pathMatch: 'full' },
     ],
   },
 ];
