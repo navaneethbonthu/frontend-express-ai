@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, ErrorHandler, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, ErrorHandler, inject, isDevMode, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -9,6 +9,10 @@ import { lastValueFrom } from 'rxjs';
 import { GlobalErrorHandler } from './handlers/error-hadler';
 import { ErrorInterceptor } from './interceptors/error-interceptor';
 import { encryptionInterceptor } from './interceptors/encryption.interceptor';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { provideStore } from '@ngrx/store';
+import { cartReducer } from './components/ngrx-cart/cart.reducer';
+import { appReducers } from './app.reducer';
 
 // function initializeApp(authService: AuthService) {
 //   return () => {
@@ -38,6 +42,9 @@ export const appConfig: ApplicationConfig = {
         cookieName: 'XSRF-TOKEN',     // Backend cookieName
         headerName: 'x-xsrf-token',   // Backend getCsrfTokenFromRequest
       })
+
+      // 1. Register the NgRx Store and your reducers
+
     ),
     // {
     //   provide: APP_INITIALIZER,
@@ -55,6 +62,14 @@ export const appConfig: ApplicationConfig = {
       // Return a Promise (Angular waits for this to resolve)
       return lastValueFrom(authService.checkAuth());
     }),
+
+    provideStore(appReducers),
+
+    // 2. Register DevTools (Only runs in development mode)
+    provideStoreDevtools({
+      maxAge: 25, // Keeps track of the last 25 actions
+      logOnly: !isDevMode(),
+    })
 
   ],
 };

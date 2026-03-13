@@ -67,7 +67,7 @@
         </div>
         <div class="summary-row">
           <span>Tax</span>
-          <span>No Tax</span>
+          <span>{{ cartService.totalPrice() | caluculateTax}}</span>
         </div>
         <div class="summary-total">
           <span>Total</span>

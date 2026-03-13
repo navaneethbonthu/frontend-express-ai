@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CurrencyPipe, NgOptimizedImage } from '@angular/common';
 import { CartService } from './cart.service';
 import { Subject, takeUntil } from 'rxjs';
+import { CaluculateTax } from "../../pipes/tax.pipe";
 
 interface CartItem {
   id: number;
@@ -15,7 +16,7 @@ interface CartItem {
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe],
+  imports: [RouterLink, CurrencyPipe, CaluculateTax],
   styleUrl: 'cart.component.scss',
   templateUrl: 'cart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
