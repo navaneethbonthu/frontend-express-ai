@@ -791,21 +791,193 @@ export class Home implements OnInit {
 
     // const result = activities.map(item => item.action)
 
-    const employees = [
-      { name: 'Alice', salary: 5000 },
-      { name: 'Bob', salary: 7000 },
-      { name: 'Charlie', salary: 3000 }
-    ];
+    // const employees = [
+    //   { name: 'Alice', salary: 5000 },
+    //   { name: 'Bob', salary: 7000 },
+    //   { name: 'Charlie', salary: 3000 }
+    // ];
 
-    [{ name: 'Bob', salary: 7000 }]
+    // [{ name: 'Bob', salary: 7000 }]
 
-    const avgSalary = employees.reduce((acc, emp) => emp.salary + acc, 0) / employees.length
+    // const avgSalary = employees.reduce((acc, emp) => emp.salary + acc, 0) / employees.length
 
 
 
-    const result = employees.filter(emp => emp.salary > avgSalary)
+    // const result = employees.filter(emp => emp.salary > avgSalary)
 
     // console.log('Final Result:', [...result])
+
+
+    // const users = [
+    //   { name: 'Alice', posts: [{ content: 'Hello', tag: 'normal' }, { content: 'Fix bug', tag: 'urgent' }] },
+    //   { name: 'Bob', posts: [{ content: 'Coffee time', tag: 'normal' }] },
+    //   { name: 'Charlie', posts: [{ content: 'Security breach', tag: 'urgent' }] }
+    // ];
+
+    // const urgentUsers = users.filter(user => user.posts.some(post => post.tag === 'urgent'))
+    //   .map(item => item.name)
+
+
+    // const users = [
+    //   { id: 101, name: 'Alice', role: 'Admin' },
+    //   { id: 102, name: 'Bob', role: 'User' },
+    //   { id: 103, name: 'Charlie', role: 'User' }
+    // ];
+    // {
+    //   101: { id: 101, name: 'Alice', role: 'Admin' },
+    //   102: { id: 102, name: 'Bob', role: 'User' },
+    //   103: { id: 103, name: 'Charlie', role: 'User' }
+    // }
+
+    // const result = users.reduce((acc, user) => {
+    //   acc[user.id] = user;
+    //   return acc;
+    // }, {} as any)
+
+
+
+
+    // {
+    //   101: { id: 101, name: 'Alice', role: 'Admin' },
+    //   102: { id: 102, name: 'Bob', role: 'User' },
+    //   103: { id: 103, name: 'Charlie', role: 'User' }
+    // }
+
+    // const users = [
+    //   { id: 101, name: 'Alice', role: 'Admin' },
+    //   { id: 102, name: 'Bob', role: 'User' },
+    //   { id: 103, name: 'Charlie', role: 'User' }
+    // ];
+
+    // const result1 = users.map(item => [item.id, item])
+
+    // const result = Object.fromEntries(result1)
+    // [
+    //   { player: 'Bob', score: 85 },
+    //   { player: 'Charlie', score: 70 },
+    //   { player: 'Alice', score: 50 }
+    // ]
+
+    // const scores = {
+    //   Alice: 50,
+    //   Bob: 85,
+    //   Charlie: 70
+    // };
+
+    // const arrayOfArray = Object.entries(scores)
+
+    // const result = arrayOfArray.map(([player, score]) => ({ player, score })).sort((a, b) => b.score - a.score)
+
+    // [
+    //   { category: 'Electronics', itemCount: 3 },
+    //   { category: 'Furniture', itemCount: 2 },
+    //   { category: 'Office', itemCount: 1 }
+    // ]
+
+    // const inventory = {
+    //   Electronics: ['Laptop', 'Mouse', 'Monitor'],
+    //   Furniture: ['Chair', 'Desk'],
+    //   Office: ['Pen']
+    // };
+
+    // const result = Object.entries(inventory).map(([category, array]) => ({
+    //   category, itemCount: array.length
+    // }))
+
+    // const dailySales = {
+    //   Monday: 100,
+    //   Tuesday: 200,
+    //   Wednesday: 150,
+    //   Thursday: 300
+    // };
+
+    // const result = Object.entries(dailySales).reduce((acc, [monday, sale]) => {
+    //   acc = acc + sale
+    //   return acc
+    // }, 0)
+
+
+    // // 1. Get just the values [100, 200, 150, 300]
+    // const values = Object.values(dailySales);
+
+    // // 2. Sum them up using reduce
+    // const sum = values.reduce((total, num) => total + num, 0);
+
+    // // 3. Divide by the length
+    // const result = sum / values.length;
+    // {
+    //   p1: 'Keyboard',
+    //     p2: 'Mouse',
+    //       p3: 'Monitor'
+    // }
+
+    // const products = [
+    //   { id: 'p1', name: 'Keyboard' },
+    //   { id: 'p2', name: 'Mouse' },
+    //   { id: 'p3', name: 'Monitor' }
+    // ];
+    // const Obj =
+    // {
+    //   p1: 'Keyboard',
+    //   p2: 'Mouse',
+    //   p3: 'Monitor'
+    // }
+
+
+    // const result = Object.fromEntries(products.map(p => [p.id, p.name]))
+
+    // const array = Object.entries(Obj)
+    // {
+    //   Alice: 5,
+    //     Charlie: 4
+    // }
+
+    // const ratings = {
+    //   Alice: 5,
+    //   Bob: 3,
+    //   Charlie: 4,
+    //   David: 2
+    // };
+
+    // const step1 = Object.entries(ratings).filter(([key, value]) => value >= 4)
+    // const result = Object.fromEntries(step1)
+    // [
+    //   { letter: 'b', count: 5 },
+    //   { letter: 'a', count: 2 },
+    //   { letter: 'c', count: 1 }
+    // ]
+
+    // const charCounts = { a: 2, b: 5, c: 1 };
+
+    // const step1 = Object.entries(charCounts)
+
+    // const result = step1.map(([Key, value]) => ({
+    //   leter: Key, count: value
+    // }))
+
+    // console.log('Final Result:', step1)
+    // {
+    //   Food: [10, 5],
+    //     Rent: [500]
+    // }
+
+    const logs = [
+      { category: 'Food', amount: 10 },
+      { category: 'Rent', amount: 500 },
+      { category: 'Food', amount: 5 }
+    ];
+
+    const step1 = logs.map((item) => [item.category, item.amount])
+
+
+    const result = step1.reduce((acc, [key, value]) => {
+      if (!acc[key]) {
+        acc[key] = []
+      }
+      acc[key].push(value)
+      return acc;
+    }, {} as any)
+
     console.log('Final Result:', result)
   }
 }
