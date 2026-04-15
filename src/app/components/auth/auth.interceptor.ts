@@ -1,6 +1,7 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from './auth.service';
+import { catchError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // const authService = inject(AuthService);
@@ -23,3 +24,4 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // If no token, just pass the original request through
   // return next(req);
 };
+

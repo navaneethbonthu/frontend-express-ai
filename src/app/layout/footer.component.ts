@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, viewChild, AfterViewInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -9,4 +9,20 @@ import { RouterLink } from '@angular/router';
   styleUrl: './footer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FooterComponent {}
+export class FooterComponent implements AfterViewInit {
+  @ViewChild('myInput', { static: false }) inputField!: ElementRef;
+
+  inputFieldSignal = viewChild<ElementRef>('myInput');
+
+  // @ViewChildren(CustomCheckboxComponent) checkboxes!: QueryList<CustomCheckboxComponent>;
+
+
+
+  ngAfterViewInit(): void {
+
+    this.inputField.nativeElement.focus()
+
+    this.inputFieldSignal()?.nativeElement.focus();
+  }
+
+}

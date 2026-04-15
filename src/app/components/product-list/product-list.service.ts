@@ -3,6 +3,7 @@ import { computed, inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { ApiStatus, Category, Product, ProductResponse } from './interfaces';
 import { catchError, EMPTY, Observable, tap } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root',
@@ -95,14 +96,22 @@ export class ProductListService implements OnDestroy {
     if (filters.categoryId) params = params.set('categoryId', filters.categoryId);
     if (filters.search) params = params.set('search', filters.search);
 
-    this.http.get<ProductResponse>(`${this.API}/products`, { params }).subscribe({
-      next: (res) => this.productsState.set({
-        data: res.data,
-        pagination: res.pagination,
-        apiStatus: 'success'
-      }),
-      error: () => this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
-    });
+    this.http.get<ProductResponse>(`${this.API}/products`, { params }).pipe(
+      takeUntilDestroyed(),
+      catchError(() => {
+        this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
+        // Raise default toster here if it posible
+        return EMPTY;
+      })
+    )
+      .subscribe((res) => {
+        this.productsState.update((state) => ({
+          ...state,
+          data: res.data,
+          pagination: res.pagination,
+          apiStatus: 'success'
+        }))
+      });
   }
 
   updateFilters(categoryId: string | null = '', search: string = '', page: number = 1) {

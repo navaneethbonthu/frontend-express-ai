@@ -15,9 +15,7 @@ export class AuthService {
 
   currentUser = signal<User | null>(null);
   // isInitialized = signal(false);
-  isAuthenticated = computed(() => {
-    return this.currentUser() ? true : false
-  })
+  isAuthenticated = computed(() => this.currentUser() ? true : false)
 
   isAdmin = computed(() => {
     return this.currentUser()?.role === 'ADMIN' ? true : false
@@ -90,3 +88,6 @@ export class AuthService {
     );
   }
 }
+
+
+
