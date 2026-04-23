@@ -14,6 +14,7 @@ import { Product } from './interfaces';
 import { CartService } from '../cart/cart.service';
 import StarRatting from '../star-ratting/star-ratting';
 import { CustomUpperCasePipe } from '../../pipes/uppercase-pipe';
+import { CategoryService } from '../category-list/category-list.service';
 
 @Component({
   selector: 'app-product-list',
@@ -25,6 +26,7 @@ import { CustomUpperCasePipe } from '../../pipes/uppercase-pipe';
 })
 export default class ProductListComponent implements OnInit {
   protected productListService = inject(ProductListService);
+  protected CategoryService = inject(CategoryService);
   title: string = 'Our Products';
 
   category = signal<string | null>(null);
@@ -36,12 +38,12 @@ export default class ProductListComponent implements OnInit {
 
   constructor() {
     // this.productListService.getAllProducts();
-    this.productListService.updateFilters('', '');
-    this.productListService.getAllCategories();
+    // this.productListService.updateFilters('', '');
+    // this.productListService.getAllCategories();
     effect(() => {
       const currentCategory = this.category();
       // this.productListService.getAllProducts(currentCategory, this.searchQuery());
-      this.productListService.updateFilters(currentCategory, this.searchQuery());
+      // this.productListService.updateFilters(currentCategory, this.searchQuery());
     });
   }
 

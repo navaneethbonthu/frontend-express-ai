@@ -13,7 +13,7 @@
             </div>
             <select class="form-select" (change)="onCategoryChange($event)">
                 <option value="">All Categories</option>
-                @for (category of productListService._Categories(); track category.id) {
+                @for (category of CategoryService._Categories(); track category.id) {
                 <option [value]="category.id" [selected]="selectedCategory() === category.id">
                     {{ category.name }}
                 </option>

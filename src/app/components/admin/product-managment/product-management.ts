@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
+import { Component, signal, inject, OnInit, ChangeDetectionStrategy, ViewEncapsulation, effect } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { OverlayPanelComponent } from '../overlay-panel.component';
@@ -24,19 +24,34 @@ import { ProductTable } from '../product-table/product-table';
   encapsulation: ViewEncapsulation.None,
 })
 export class ProductManagementComponent implements OnInit {
-  productListService = inject(ProductListService);
+  protected readonly productListService = inject(ProductListService);
+
+  // UI State Signals
   showAddProductPanel = signal(false);
   editingProduct = signal<Product | null>(null);
 
+
+  constructor() {
+    /**
+     * OPTIONAL: Reactive UI Logic
+     * If the API call is successful, automatically close the overlay.
+     * This reacts to the Service's status signal.
+     */
+    effect(() => {
+      if (this.productListService._Status() === 'success' && this.showAddProductPanel()) {
+        this.closeAddProductOverlay();
+      }
+    });
+  }
+
   ngOnInit() {
-    // this.productListService.getAllProducts();
-    this.productListService.updateFilters('', '');
+    // Initialize with default filters
+    this.productListService.setSearch('');
   }
 
   onSearch(event: Event) {
     const searchTerm = (event.target as HTMLInputElement).value;
-    // this.productListService.getAllProducts('', searchTerm);
-    this.productListService.updateFilters(null, searchTerm);
+    this.productListService.setSearch(searchTerm);
   }
 
   openAddProductOverlay(productToEdit: Product | null = null) {
@@ -46,7 +61,7 @@ export class ProductManagementComponent implements OnInit {
 
   closeAddProductOverlay() {
     this.showAddProductPanel.set(false);
-    this.editingProduct.set(null); // Reset editing product on close
+    this.editingProduct.set(null);
   }
 
   onProductAdded(productPayload: any) {
@@ -56,38 +71,19 @@ export class ProductManagementComponent implements OnInit {
     }
 
     const currentEditingProduct = this.editingProduct();
-    const isEdit = !!currentEditingProduct;
-    let operation$;
 
-    if (isEdit && currentEditingProduct) {
-      operation$ = this.productListService.updateProduct(currentEditingProduct.id, productPayload);
+    if (currentEditingProduct) {
+      // Logic for Update
+      this.productListService.updateProduct(currentEditingProduct.id, productPayload);
     } else {
-      operation$ = this.productListService.addProduct(productPayload);
+      // Logic for Add
+      this.productListService.addProduct(productPayload);
     }
 
-    operation$.subscribe({
-      next: () => {
-        // this.productListService.getAllProducts();
-        this.productListService.updateFilters('', '');
-        this.closeAddProductOverlay();
-      },
-      error: (err) => {
-        console.error(`Failed to ${isEdit ? 'update' : 'add'} product:`, err);
-        // TODO: Implement user-facing error notification
-      },
-    });
+    // Note: We don't close the overlay here manually anymore. 
+    // The effect() in the constructor handles closing it when the API succeeds.
   }
-
   onAdminDeleteProduct(productId: string) {
-    this.productListService.deleteProduct(productId).subscribe(
-      {
-        next: () => {
-          this.productListService.updateFilters('', '');
-        },
-        error: (err) => {
-          console.error(`Failed to load products:`, err);
-        },
-      }
-    );
+    this.productListService.deleteProduct(productId)
   }
 }

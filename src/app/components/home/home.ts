@@ -1,44 +1,24 @@
-import { Component, OnInit, inject } from "@angular/core"
-import { Subject, Observable, exhaustMap } from "rxjs"
+import { Component, HOST_TAG_NAME, OnInit, inject } from "@angular/core"
+import { Subject, Observable, exhaustMap, forkJoin, catchError, of, BehaviorSubject, combineLatest, map, switchMap, tap, filter, debounceTime } from "rxjs"
 import { HomeService } from "./home.service"
 import { InfinitiveScrollDirective } from "../../directives/infinitivescroll.directive"
+import { HttpClient } from "@angular/common/http"
+import { AsyncPipe, CurrencyPipe } from "@angular/common"
 
 
 
 @Component({
   selector: 'app-home',
-  imports: [InfinitiveScrollDirective],
+  imports: [AsyncPipe, CurrencyPipe],
   template: `
-   
-   
-   <input type = 'text' placeholder="Enter..." (input)="onInput($event)">
-
-     
-
-
-
+    
   `,
 
   styleUrl: './home.scss',
 })
-export class Home implements OnInit {
+export class Home {
 
-  homeService = inject(HomeService);
-
-
-
-  ngOnInit(): void {
-
-  }
-  onInput(event: Event) {
-    const input = event.target as HTMLInputElement
-    const inputText = input.value
-    this.homeService.udpateMessage(inputText)
-  }
-
-
-
-
+  private apiService = inject(HomeService);
 
 
 
