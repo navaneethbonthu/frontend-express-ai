@@ -42,6 +42,6 @@ export class CartComponent {
             imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80'
         };;
         // We don't call a method, we dispatch an Action
-        this.store.dispatch(CartActions.addToCart({ product }));
+        // this.store.dispatch(CartActions.addToCart({ product }));
     }
 }

@@ -19,7 +19,7 @@ import { CategoryService } from '../category-list/category-list.service';
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CurrencyPipe, NgOptimizedImage, StarRatting, CustomUpperCasePipe],
+  imports: [CurrencyPipe, CustomUpperCasePipe],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

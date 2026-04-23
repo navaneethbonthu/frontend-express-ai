@@ -48,12 +48,11 @@ export class ProductListService {
       .pipe(
         debounceTime(300),
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-        tap(() => this.updateStatus('loading')),
+        tap(() => this.productsState.update((s) => ({ ...s, apiStatus: 'loading' }))),
         switchMap((filter: Filter) =>
           this.fetchProducts(filter).pipe(
             catchError((err) => {
-              console.error('Fetch Error:', err);
-              this.updateStatus('error');
+              this.productsState.update((s) => ({ ...s, apiStatus: 'error' }));
               return EMPTY; // Keeps the main stream alive
             })
           )
@@ -98,29 +97,18 @@ export class ProductListService {
     return this.http.get<ProductResponse>(this.API, { params });
   }
 
-  private updateStatus(apiStatus: ApiStatus): void {
-    this.productsState.update((s) => ({ ...s, apiStatus }));
-  }
-
-  private handleLocalError(): Observable<never> {
-    this.updateStatus('error');
-    // Logic for Toast Notification could be injected here
-    return EMPTY;
-  }
-
-
-
   // --- 3. API METHODS (REST) ---
 
-
-
   public addProduct(newProduct: Partial<Product>): void {
-    this.updateStatus('loading');
+    this.productsState.update((s) => ({ ...s, apiStatus: 'loading' }));
 
     this.http.post<Product>(this.API, newProduct)
       .pipe(
         takeUntilDestroyed(this.destroyRef$),
-        catchError(() => this.handleLocalError())
+        catchError(() => {
+          this.productsState.update((s) => ({ ...s, apiStatus: 'error' }))
+          return EMPTY
+        })
       )
       .subscribe((product: Product) => {
         this.productsState.update((state) => ({
@@ -134,12 +122,15 @@ export class ProductListService {
 
 
   public updateProduct(productId: string, updatedData: Partial<Product>): void {
-    this.updateStatus('loading');
+    this.productsState.update((s) => ({ ...s, apiStatus: 'loading' }))
 
     this.http.patch<Product>(`${this.API}/${productId}`, updatedData)
       .pipe(
         takeUntilDestroyed(this.destroyRef$),
-        catchError(() => this.handleLocalError())
+        catchError(() => {
+          this.productsState.update((s) => ({ ...s, apiStatus: 'error' }))
+          return EMPTY
+        })
       )
       .subscribe((updatedProduct: Product) => {
         this.productsState.update((state) => ({
@@ -152,12 +143,15 @@ export class ProductListService {
 
 
   public deleteProduct(productId: string): void {
-    this.updateStatus('loading');
+    this.productsState.update((s) => ({ ...s, apiStatus: 'loading' }));
 
     this.http.delete<void>(`${this.API}/${productId}`)
       .pipe(
         takeUntilDestroyed(this.destroyRef$),
-        catchError(() => this.handleLocalError())
+        catchError(() => {
+          this.productsState.update((s) => ({ ...s, apiStatus: 'error' }))
+          return EMPTY
+        })
       )
       .subscribe(() => {
         this.productsState.update((state) => ({

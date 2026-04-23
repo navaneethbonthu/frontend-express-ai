@@ -9,7 +9,7 @@ import { AsyncPipe, CurrencyPipe } from "@angular/common"
 
 @Component({
   selector: 'app-home',
-  imports: [AsyncPipe, CurrencyPipe],
+  imports: [],
   template: `
     
   `,

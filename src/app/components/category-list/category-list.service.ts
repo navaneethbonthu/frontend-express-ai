@@ -30,12 +30,15 @@ export class CategoryService {
      * Fetches all categories from the server
      */
     public getAllCategories(): void {
-        this.updateStatus('loading');
+        this.categoriesState.update((s) => ({ ...s, apiStatus: 'loading' }))
 
         this.http.get<Category[]>(this.API)
             .pipe(
                 takeUntilDestroyed(this.destroyRef$),
-                catchError(() => this.handleError())
+                catchError(() => {
+                    this.categoriesState.update((s) => ({ ...s, apiStatus: 'error' }))
+                    return EMPTY
+                })
             )
             .subscribe((res: Category[]) => {
                 this.categoriesState.set({
@@ -50,12 +53,15 @@ export class CategoryService {
      * @param categoryData Object containing the category name
      */
     public addCategory(categoryData: Pick<Category, 'name'>): void {
-        this.updateStatus('loading');
+        this.categoriesState.update((s) => ({ ...s, apiStatus: 'loading' }))
 
         this.http.post<Category>(this.API, categoryData)
             .pipe(
                 takeUntilDestroyed(this.destroyRef$),
-                catchError(() => this.handleError())
+                catchError(() => {
+                    this.categoriesState.update((s) => ({ ...s, apiStatus: 'error' }))
+                    return EMPTY
+                })
             )
             .subscribe((newCat: Category) => {
                 this.categoriesState.update((state) => ({
@@ -70,12 +76,15 @@ export class CategoryService {
      * Updates an existing category via PATCH
      */
     public updateCategory(id: string, categoryData: Partial<Category>): void {
-        this.updateStatus('loading');
+        this.categoriesState.update((s) => ({ ...s, apiStatus: 'loading' }))
 
         this.http.patch<Category>(`${this.API}/${id}`, categoryData)
             .pipe(
                 takeUntilDestroyed(this.destroyRef$),
-                catchError(() => this.handleError())
+                catchError(() => {
+                    this.categoriesState.update((s) => ({ ...s, apiStatus: 'error' }))
+                    return EMPTY
+                })
             )
             .subscribe((updated: Category) => {
                 this.categoriesState.update((state) => ({
@@ -90,12 +99,15 @@ export class CategoryService {
      * Deletes a category by ID
      */
     public deleteCategory(categoryId: string): void {
-        this.updateStatus('loading');
+        this.categoriesState.update((s) => ({ ...s, apiStatus: 'loading' }))
 
         this.http.delete<void>(`${this.API}/${categoryId}`)
             .pipe(
                 takeUntilDestroyed(this.destroyRef$),
-                catchError(() => this.handleError())
+                catchError(() => {
+                    this.categoriesState.update((s) => ({ ...s, apiStatus: 'error' }))
+                    return EMPTY
+                })
             )
             .subscribe(() => {
                 this.categoriesState.update((state) => ({
@@ -105,27 +117,6 @@ export class CategoryService {
                 }));
             });
     }
-
-
-    // --- 4. PRIVATE HELPERS ---
-
-    /**
-     * Internal helper to update the API status signal
-     */
-    private updateStatus(apiStatus: ApiStatus): void {
-        this.categoriesState.update((s) => ({ ...s, apiStatus }));
-    }
-
-    /**
-     * Centralized error handler for the service
-     */
-    private handleError(): Observable<never> {
-        this.updateStatus('error');
-        // Place for Global Toast Notification service call
-        console.error('Category operation failed');
-        return EMPTY;
-    }
-
 
 }
 

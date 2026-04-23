@@ -10,7 +10,7 @@
         <input type="text" placeholder="Search products..." (input)="onSearch($event)" class="form-control" />
     </div>
 
-    <app-product-table [products]="productListService._Products()" [status]="productListService._ApiStatus()"
+    <app-product-table [products]="productListService.products()" [status]="productListService.apiStatus()"
         (editRequest)="openAddProductOverlay($event)" (deleteRequest)="onAdminDeleteProduct($event)">
     </app-product-table>
 </div>

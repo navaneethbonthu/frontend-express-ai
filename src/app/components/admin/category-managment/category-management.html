@@ -22,7 +22,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for (category of productListService._Categories(); track category.id) {
+                @for (category of categoryService.categories(); track category.id) {
                 <tr>
                     <td>{{ category.id }}</td>
                     <td>{{ category.name }}</td>

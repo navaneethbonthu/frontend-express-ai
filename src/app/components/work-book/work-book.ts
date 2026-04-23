@@ -5,7 +5,7 @@ import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-work-book',
-  imports: [AsyncPipe],
+  imports: [],
   template: `
 
 

@@ -15,11 +15,12 @@ import { Product } from '../../product-list/interfaces';
 export class AddProductFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private productListService = inject(ProductListService);
+  private categoryService = inject(ProductListService);
 
   editingProduct = input<Product | null>(null);
   productAdded = output<any>();
 
-  categories = this.productListService._Categories;
+  // categories = this.categoryService._Categories;
 
   addProductForm = this.fb.group({
     name: ['', Validators.required],
@@ -29,8 +30,8 @@ export class AddProductFormComponent implements OnInit {
   });
 
   constructor() {
-    this.productListService.getAllCategories();
-    console.log('all categoryes', this.categories());
+    // this.productListService.getAllCategories();
+    // console.log('all categoryes', this.categories());
 
 
     effect(() => {
@@ -40,7 +41,7 @@ export class AddProductFormComponent implements OnInit {
           name: product.name,
           price: product.price,
           description: product.description,
-          category: product.category.id,
+          // category: product.category.id,
         });
       } else {
         this.addProductForm.reset({

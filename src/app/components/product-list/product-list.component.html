@@ -13,7 +13,7 @@
             </div>
             <select class="form-select" (change)="onCategoryChange($event)">
                 <option value="">All Categories</option>
-                @for (category of CategoryService._Categories(); track category.id) {
+                @for (category of CategoryService.categories(); track category.id) {
                 <option [value]="category.id" [selected]="selectedCategory() === category.id">
                     {{ category.name }}
                 </option>
@@ -22,12 +22,12 @@
         </div>
     </div>
 
-    @if (productListService._ApiStatus() === 'loading') {
+    @if (productListService.apiStatus() === 'loading') {
     <div class="loading-state">
         <div class="spinner"></div>
         <p>Loading products...</p>
     </div>
-    } @else if (productListService._Products().length === 0 && productListService._ApiStatus() === 'success') {
+    } @else if (productListService.products().length === 0 && productListService.apiStatus() === 'success') {
     <div class="no-products-state">
         <img src="/assets/icons/box-open.svg" alt="Empty box" class="empty-icon" />
         <h2>Oops! Nothing here.</h2>
@@ -35,11 +35,11 @@
     </div>
     } @else {
     <div class="product-grid">
-        @for (product of productListService._Products(); track product.id) {
+        @for (product of productListService.products(); track product.id) {
         <a class="product-card">
             <div class="product-image-wrapper">
-                <img [ngSrc]="product.imageUrl || '/assets/images/placeholder.png'" [alt]="product.name" width="400"
-                    height="400" priority class="product-image" />
+                <!-- <img [ngSrc]="product.imageUrl || '/assets/images/placeholder.png'" [alt]="product.name" width="400" -->
+                height="400" priority class="product-image" />
                 <div class="quick-actions">
                     <button class="btn btn-primary add-to-cart-quick"
                         (click)="addToCart(product); $event.preventDefault();"
@@ -52,11 +52,11 @@
                 <!-- } -->
             </div>
             <div class="product-info">
-                <span class="product-category">{{ product.category?.name || 'Uncategorized' }}</span>
+                <!-- <span class="product-category">{{ product.category?.name || 'Uncategorized' }}</span> -->
                 <h3 class="product-name">{{ product.name }}</h3>
                 <div class="product-footer">
                     <span class="product-price">{{ product.price | currency: 'USD' }}</span>
-                    <app-star-ratting [value]="product.rating || 0" [readOnly]="true"></app-star-ratting>
+                    <!-- <app-star-ratting [value]="product.rating || 0" [readOnly]="true"></app-star-ratting> -->
                 </div>
             </div>
         </a>
