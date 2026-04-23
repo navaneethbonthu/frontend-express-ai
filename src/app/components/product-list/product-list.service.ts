@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { computed, DestroyRef, inject, Injectable, OnDestroy, signal } from '@angular/core';
-import { ApiStatus, Filter, Product, ProductResponse } from './interfaces';
+import { computed, DestroyRef, inject, Injectable, OnDestroy, Signal, signal } from '@angular/core';
+import { ApiStatus, Filter, Pagination, Product, ProductResponse, ProductState } from './interfaces';
 import { catchError, debounceTime, distinctUntilChanged, EMPTY, Observable, switchMap, tap } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -10,27 +10,33 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 })
 export class ProductListService {
   private readonly http = inject(HttpClient);
-  private readonly API = '/api';
   private readonly destroyRef$ = inject(DestroyRef);
+  private readonly API = '/api/products'; // Specific endpoint
+
 
   // --- 1. STATE SIGNALS ---
 
-  private productsState = signal<{
-    data: Product[];
-    pagination: { totalItems: number; currentPage: number; totalPages: number; itemsPerPage: number };
-    apiStatus: ApiStatus;
-  }>({
+  private readonly productsState = signal<ProductState>({
     data: [],
     pagination: { totalItems: 0, currentPage: 1, totalPages: 0, itemsPerPage: 10 },
     apiStatus: 'idle',
   });
 
-  private readonly filters = signal<Filter>({ categoryId: '', search: '', page: 1, limit: 10 });
+  private readonly filters = signal<Filter>({
+    categoryId: '',
+    search: '',
+    page: 1,
+    limit: 10
+  });
 
-  // --- 2. SELECTORS ---
-  public readonly _Products = computed(() => this.productsState().data);
-  public readonly _TotalItems = computed(() => this.productsState().pagination.totalItems);
-  public readonly _ApiStatus = computed(() => this.productsState().apiStatus);
+  // --- 2. SELECTORS (Read-only for Components) ---
+
+  public readonly products: Signal<Product[]> = computed(() => this.productsState().data);
+  public readonly totalItems: Signal<number> = computed(() => this.productsState().pagination.totalItems);
+  public readonly apiStatus: Signal<ApiStatus> = computed(() => this.productsState().apiStatus);
+  public readonly currentFilters: Signal<Filter> = computed(() => this.filters());
+  public readonly pagination: Signal<Pagination> = computed(() => this.productsState().pagination);
+
 
   constructor() {
     /**
@@ -40,128 +46,129 @@ export class ProductListService {
      */
     toObservable(this.filters)
       .pipe(
-        debounceTime(300), // Wait for user to stop typing
+        debounceTime(300),
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-        tap(() => this.productsState.update((s) => ({ ...s, apiStatus: 'loading' }))),
-        switchMap((filter: Filter) => this.fetchProducts(filter)),
-        takeUntilDestroyed(this.destroyRef$),
-        catchError(() => {
-          this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
-          // Raise default toster here if it posible
-          return EMPTY;
-        })
+        tap(() => this.updateStatus('loading')),
+        switchMap((filter: Filter) =>
+          this.fetchProducts(filter).pipe(
+            catchError((err) => {
+              console.error('Fetch Error:', err);
+              this.updateStatus('error');
+              return EMPTY; // Keeps the main stream alive
+            })
+          )
+        ),
+        takeUntilDestroyed(this.destroyRef$)
       )
-      .subscribe((res) => {
-        this.productsState.update((s) => ({
+      .subscribe((res: ProductResponse) => {
+        this.productsState.update((state) => ({
+          ...state,
           data: res.data,
           pagination: res.pagination,
           apiStatus: 'success',
         }));
       });
+
   }
 
-  setSearch(search: string) {
-    this.filters.update((filter: Filter) => ({ ...filter, search, page: 1 }));
+  // --- 3. PUBLIC ACTIONS ---
+
+  public setSearch(search: string): void {
+    this.filters.update((f) => ({ ...f, search, page: 1 }));
   }
 
-  setCategory(categoryId: string) {
-    this.filters.update((filter: Filter) => ({ ...filter, categoryId, page: 1 }));
+  public setCategory(categoryId: string): void {
+    this.filters.update((f) => ({ ...f, categoryId, page: 1 }));
   }
 
-  setPage(page: number) {
-    this.filters.update((filter: Filter) => ({ ...filter, page }));
+  public setPage(page: number): void {
+    this.filters.update((f) => ({ ...f, page }));
+  }
+
+  // --- 5. PRIVATE HELPERS ---
+
+  private fetchProducts(filter: Filter): Observable<ProductResponse> {
+    let params = new HttpParams()
+      .set('page', filter.page.toString())
+      .set('limit', filter.limit.toString());
+
+    if (filter.categoryId) params = params.set('categoryId', filter.categoryId);
+    if (filter.search) params = params.set('search', filter.search);
+
+    return this.http.get<ProductResponse>(this.API, { params });
+  }
+
+  private updateStatus(apiStatus: ApiStatus): void {
+    this.productsState.update((s) => ({ ...s, apiStatus }));
+  }
+
+  private handleLocalError(): Observable<never> {
+    this.updateStatus('error');
+    // Logic for Toast Notification could be injected here
+    return EMPTY;
   }
 
 
 
   // --- 3. API METHODS (REST) ---
 
-  private fetchProducts(filter: Filter): Observable<ProductResponse> {
-    let params = new HttpParams().set('page', filter.page).set('limit', filter.limit);
-    if (filter.categoryId) params = params.set('categoryId', filter.categoryId);
-    if (filter.search) params = params.set('search', filter.search);
 
-    return this.http.get<ProductResponse>(`${this.API}/products`, { params }).pipe(
-      catchError((err) => {
-        console.error('Fetch Error:', err);
-        return EMPTY;
-      })
-    );
-  }
 
-  addProduct(newProduct: Partial<Product>) {
-    this.productsState.update((s) => ({ ...s, apiStatus: 'loading' }));
+  public addProduct(newProduct: Partial<Product>): void {
+    this.updateStatus('loading');
 
-    this.http.post<Product>(`${this.API}/products`, newProduct)
+    this.http.post<Product>(this.API, newProduct)
       .pipe(
         takeUntilDestroyed(this.destroyRef$),
-        catchError(() => {
-          this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
-          // Raise default toster here if it posible
-          return EMPTY;
-        })
-      ) // Use short-lived pipe or convert to promise if preferred
-      .subscribe((product) => {
-        // Update state: Add the new product to the top of the list locally
+        catchError(() => this.handleLocalError())
+      )
+      .subscribe((product: Product) => {
         this.productsState.update((state) => ({
           ...state,
           data: [product, ...state.data],
-          apiStatus: 'success',
-        }));
-      },);
-  }
-
-
-  updateProduct(productId: string | number, updatedData: Partial<Product>) {
-    // Set status to loading
-    this.productsState.update((s) => ({ ...s, apiStatus: 'loading' }));
-
-    this.http
-      .patch<Product>(`${this.API}/products/${productId}`, updatedData)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef$),
-        catchError(() => {
-          this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
-          // Raise default toster here if it posible
-          return EMPTY;
-        }))
-      .subscribe((updatedProduct) => {
-        this.productsState.update((state) => ({
-          ...state,
-          // Replace only the specific product in the array
-          data: state.data.map((p) => (p.id === productId ? updatedProduct : p)),
-          apiStatus: 'success',
-        }));
-        console.log('Product updated successfully');
-      },);
-  }
-
-
-  deleteProduct(productId: string | number) {
-    this.productsState.update((s) => ({ ...s, apiStatus: 'loading' }));
-
-    this.http
-      .delete(`${this.API}/products/${productId}`)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef$),
-        catchError(() => {
-          this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
-          // Raise default toster here if it posible
-          return EMPTY;
-        }))
-      .subscribe(() => {
-        this.productsState.update((state) => ({
-          ...state,
-          // Remove the product from the local list
-          data: state.data.filter((p) => p.id !== productId),
-          // Update total count in pagination
-          pagination: {
-            ...state.pagination,
-            totalItems: state.pagination.totalItems - 1,
-          },
+          pagination: { ...state.pagination, totalItems: state.pagination.totalItems + 1 },
           apiStatus: 'success',
         }));
       });
   }
 
+
+  public updateProduct(productId: string, updatedData: Partial<Product>): void {
+    this.updateStatus('loading');
+
+    this.http.patch<Product>(`${this.API}/${productId}`, updatedData)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef$),
+        catchError(() => this.handleLocalError())
+      )
+      .subscribe((updatedProduct: Product) => {
+        this.productsState.update((state) => ({
+          ...state,
+          data: state.data.map((p) => (p.id === productId ? updatedProduct : p)),
+          apiStatus: 'success',
+        }));
+      });
+  }
+
+
+  public deleteProduct(productId: string): void {
+    this.updateStatus('loading');
+
+    this.http.delete<void>(`${this.API}/${productId}`)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef$),
+        catchError(() => this.handleLocalError())
+      )
+      .subscribe(() => {
+        this.productsState.update((state) => ({
+          ...state,
+          data: state.data.filter((p) => p.id !== productId),
+          pagination: { ...state.pagination, totalItems: state.pagination.totalItems - 1 },
+          apiStatus: 'success',
+        }));
+      });
+  }
+
+
 }
+

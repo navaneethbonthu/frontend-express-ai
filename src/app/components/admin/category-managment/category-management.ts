@@ -32,7 +32,7 @@ export class CategoryManagementComponent implements OnInit {
      * successfully completes an add or update operation.
      */
     effect(() => {
-      if (this.categoryService._Status() === 'success' && this.showAddCategoryPanel()) {
+      if (this.categoryService.status() === 'success' && this.showAddCategoryPanel()) {
         this.closeAndReset();
       }
     });

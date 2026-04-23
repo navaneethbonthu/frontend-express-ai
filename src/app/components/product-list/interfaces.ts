@@ -1,33 +1,37 @@
 export interface Product {
   id: string;
   name: string;
-  category: {
-    id: string;
-    name: string;
-  };
   price: number;
-  rating: number;
-  imageUrl: string;
+  categoryId: string;
+  image: string;
   description?: string;
+  // add other fields...
 }
 
-export type ApiStatus = 'idle' | 'loading' | 'success' | 'error';
+export interface Pagination {
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+  itemsPerPage: number;
+}
 
 export interface ProductResponse {
   data: Product[];
-  pagination: {
-    totalItems: number;
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-  };
+  pagination: Pagination;
 }
 
 export interface Filter {
-  categoryId: string,
-  search: string,
-  page: number,
-  limit: number
+  categoryId: string;
+  search: string;
+  page: number;
+  limit: number;
+}
+
+export type ApiStatus = 'idle' | 'loading' | 'success' | 'error';
+export interface ProductState {
+  data: Product[];
+  pagination: Pagination;
+  apiStatus: ApiStatus;
 }
 
 export interface FormValues {

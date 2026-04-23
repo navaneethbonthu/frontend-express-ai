@@ -38,7 +38,7 @@ export class ProductManagementComponent implements OnInit {
      * This reacts to the Service's status signal.
      */
     effect(() => {
-      if (this.productListService._Status() === 'success' && this.showAddProductPanel()) {
+      if (this.productListService.apiStatus() === 'success' && this.showAddProductPanel()) {
         this.closeAddProductOverlay();
       }
     });
