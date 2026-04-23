@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { computed, inject, Injectable, OnDestroy, signal } from '@angular/core';
-import { ApiStatus, Product, ProductResponse } from './interfaces';
+import { computed, DestroyRef, inject, Injectable, OnDestroy, signal } from '@angular/core';
+import { ApiStatus, Filter, Product, ProductResponse } from './interfaces';
 import { catchError, debounceTime, distinctUntilChanged, EMPTY, Observable, switchMap, tap } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -8,13 +8,12 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 @Injectable({
   providedIn: 'root',
 })
-export class ProductListService implements OnDestroy {
+export class ProductListService {
   private readonly http = inject(HttpClient);
-
   private readonly API = '/api';
+  private readonly destroyRef$ = inject(DestroyRef);
 
   // --- 1. STATE SIGNALS ---
-
 
   private productsState = signal<{
     data: Product[];
@@ -26,18 +25,12 @@ export class ProductListService implements OnDestroy {
     apiStatus: 'idle',
   });
 
-
-
-  // private currentFilters = signal({ categoryId: '', search: '', page: 1, limit: 10 });
-  private readonly filters = signal({ categoryId: '', search: '', page: 1, limit: 10 });
+  private readonly filters = signal<Filter>({ categoryId: '', search: '', page: 1, limit: 10 });
 
   // --- 2. SELECTORS ---
   public readonly _Products = computed(() => this.productsState().data);
   public readonly _TotalItems = computed(() => this.productsState().pagination.totalItems);
   public readonly _ApiStatus = computed(() => this.productsState().apiStatus);
-
-
-
 
   constructor() {
     /**
@@ -50,8 +43,8 @@ export class ProductListService implements OnDestroy {
         debounceTime(300), // Wait for user to stop typing
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
         tap(() => this.productsState.update((s) => ({ ...s, apiStatus: 'loading' }))),
-        switchMap((f) => this.fetchProducts(f)),
-        takeUntilDestroyed(),
+        switchMap((filter: Filter) => this.fetchProducts(filter)),
+        takeUntilDestroyed(this.destroyRef$),
         catchError(() => {
           this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
           // Raise default toster here if it posible
@@ -68,21 +61,25 @@ export class ProductListService implements OnDestroy {
   }
 
   setSearch(search: string) {
-    this.filters.update((f) => ({ ...f, search, page: 1 }));
+    this.filters.update((filter: Filter) => ({ ...filter, search, page: 1 }));
   }
 
   setCategory(categoryId: string) {
-    this.filters.update((f) => ({ ...f, categoryId, page: 1 }));
+    this.filters.update((filter: Filter) => ({ ...filter, categoryId, page: 1 }));
   }
 
   setPage(page: number) {
-    this.filters.update((f) => ({ ...f, page }));
+    this.filters.update((filter: Filter) => ({ ...filter, page }));
   }
 
-  private fetchProducts(f: any): Observable<ProductResponse> {
-    let params = new HttpParams().set('page', f.page).set('limit', f.limit);
-    if (f.categoryId) params = params.set('categoryId', f.categoryId);
-    if (f.search) params = params.set('search', f.search);
+
+
+  // --- 3. API METHODS (REST) ---
+
+  private fetchProducts(filter: Filter): Observable<ProductResponse> {
+    let params = new HttpParams().set('page', filter.page).set('limit', filter.limit);
+    if (filter.categoryId) params = params.set('categoryId', filter.categoryId);
+    if (filter.search) params = params.set('search', filter.search);
 
     return this.http.get<ProductResponse>(`${this.API}/products`, { params }).pipe(
       catchError((err) => {
@@ -92,15 +89,12 @@ export class ProductListService implements OnDestroy {
     );
   }
 
-
-  // --- 3. API METHODS (REST) ---
-
-
   addProduct(newProduct: Partial<Product>) {
     this.productsState.update((s) => ({ ...s, apiStatus: 'loading' }));
 
     this.http.post<Product>(`${this.API}/products`, newProduct)
-      .pipe(takeUntilDestroyed(),
+      .pipe(
+        takeUntilDestroyed(this.destroyRef$),
         catchError(() => {
           this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
           // Raise default toster here if it posible
@@ -124,7 +118,8 @@ export class ProductListService implements OnDestroy {
 
     this.http
       .patch<Product>(`${this.API}/products/${productId}`, updatedData)
-      .pipe(takeUntilDestroyed(),
+      .pipe(
+        takeUntilDestroyed(this.destroyRef$),
         catchError(() => {
           this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
           // Raise default toster here if it posible
@@ -147,37 +142,26 @@ export class ProductListService implements OnDestroy {
 
     this.http
       .delete(`${this.API}/products/${productId}`)
-      .pipe(takeUntilDestroyed(),
+      .pipe(
+        takeUntilDestroyed(this.destroyRef$),
         catchError(() => {
           this.productsState.update(s => ({ ...s, apiStatus: 'error' }))
           // Raise default toster here if it posible
           return EMPTY;
         }))
-      .subscribe({
-        next: () => {
-          this.productsState.update((state) => ({
-            ...state,
-            // Remove the product from the local list
-            data: state.data.filter((p) => p.id !== productId),
-            // Update total count in pagination
-            pagination: {
-              ...state.pagination,
-              totalItems: state.pagination.totalItems - 1,
-            },
-            apiStatus: 'success',
-          }));
-          console.log('Product deleted successfully');
-        },
-        error: (err) => {
-          this.productsState.update((s) => ({ ...s, apiStatus: 'error' }));
-          console.error('Delete failed', err);
-        },
+      .subscribe(() => {
+        this.productsState.update((state) => ({
+          ...state,
+          // Remove the product from the local list
+          data: state.data.filter((p) => p.id !== productId),
+          // Update total count in pagination
+          pagination: {
+            ...state.pagination,
+            totalItems: state.pagination.totalItems - 1,
+          },
+          apiStatus: 'success',
+        }));
       });
   }
 
-
-
-  ngOnDestroy() {
-    // this.socket.disconnect();
-  }
 }

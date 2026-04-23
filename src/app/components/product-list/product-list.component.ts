@@ -40,6 +40,7 @@ export default class ProductListComponent implements OnInit {
     // this.productListService.getAllProducts();
     // this.productListService.updateFilters('', '');
     // this.productListService.getAllCategories();
+
     effect(() => {
       const currentCategory = this.category();
       // this.productListService.getAllProducts(currentCategory, this.searchQuery());

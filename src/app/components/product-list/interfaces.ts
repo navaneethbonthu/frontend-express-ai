@@ -23,7 +23,12 @@ export interface ProductResponse {
   };
 }
 
-
+export interface Filter {
+  categoryId: string,
+  search: string,
+  page: number,
+  limit: number
+}
 
 export interface FormValues {
   name: string;
