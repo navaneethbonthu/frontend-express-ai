@@ -20,8 +20,6 @@ export interface TreeNode {
   template: `
 
   
-
-
    
 
   `,

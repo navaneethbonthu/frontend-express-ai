@@ -1,15 +1,18 @@
-import { Directive, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
-import { Subject, fromEvent, throttleTime, distinctUntilChanged, map, filter, takeUntil } from "rxjs";
+import { Directive, inject, Input, TemplateRef, ViewContainerRef } from "@angular/core";
+import { HomeService } from "../components/home/home.service";
 
 
+
+interface contextRepeat {
+    $implict: number,
+    index: number
+}
 
 @Directive({
-    selector: '[appInfinitiveScroll]'
+    selector: '[appRepeat]'
 })
 
-export class InfinitiveScrollDirective {
-
-
+export class RepeatDirective {
 
 
 
