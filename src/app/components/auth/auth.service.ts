@@ -87,6 +87,13 @@ export class AuthService {
       })
     );
   }
+
+  refreshAccessToken(): Observable<any> {
+    return this.http.post(`${this.API}/refresh`, {}, { withCredentials: true }).pipe(
+      // Important: refresh CSRF after rotating the session
+      switchMap(() => this.getCsrfToken())
+    );
+  }
 }
 
 

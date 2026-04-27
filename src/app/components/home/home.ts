@@ -1,12 +1,12 @@
 import { Component, HOST_TAG_NAME, OnDestroy, OnInit, inject } from "@angular/core"
-import { Subject, Observable, exhaustMap, forkJoin, catchError, of, BehaviorSubject, combineLatest, map, switchMap, tap, filter, debounceTime, distinctUntilChanged, EMPTY, takeUntil } from "rxjs"
+import { Subject, Observable, exhaustMap, forkJoin, catchError, of, BehaviorSubject, combineLatest, map, switchMap, tap, filter, debounceTime, distinctUntilChanged, EMPTY, takeUntil, first, startWith } from "rxjs"
 import { HomeService } from "./home.service"
 
 import { AsyncPipe, CurrencyPipe, JsonPipe, NgIf, NgForOf } from "@angular/common"
-import { FormBuilder, FormControl, FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule } from "@angular/forms";
+import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule } from "@angular/forms";
 import { TreeNodeComponent } from "../tree-node/tree-node";
 import { RepeatDirective } from "../../directives/infinitivescroll.directive";
-import { validate } from "@angular/forms/signals";
+import { email, validate } from "@angular/forms/signals";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 
@@ -19,38 +19,36 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-home',
-  imports: [ReactiveFormsModule, NgForOf, JsonPipe],
+  imports: [ReactiveFormsModule, NgForOf, JsonPipe, AsyncPipe],
   template: `
+   <div [formGroup]="resumeForm">
+      <h3>Skills List</h3>
+<div>
+    <label>Full Name:</label>
+    <input formControlName="fullName" type="text" />
+  </div>
 
-  <form [formGroup]="resumeForm">
-    <div formArrayName='skills'>
+  <hr />
+      <div formArrayName="skills">
+        <div *ngFor="let skill of skills.controls; let i = index" class="skill-row">
+          <input [formControl]="skill" placeholder="Enter skill (e.g. Angular)" />
 
-
-      <div *ngFor="let skill of skills.controls; let i = index">
-
-          <input [formControl]='skill' placeholder="e.g. Angular, RxJS, TypeScript">
-
-           <button type="button" (click)="removeSkill(i)" [disabled]="skills.length === 1">
-              Remove
-            </button>
-
-             <button type="button" (click)="skill.reset()">Undo</button>
-
-      </div>
-
-  <div class="actions">
-          <button type="button" (click)="addSkill()">+ Add Skill</button>
-          <button type="button" (click)="clearAllSkills()" class="danger">Clear All</button>
-          <button type="button" (click)="saveSkills()">Submit Skills</button>
+          <button type="button" (click)="removeSkill(i)">Remove</button>
         </div>
-    </div>
-  </form>
-
-   <div class="preview">
-        <strong>Data to send:</strong>
-        <pre>{{ resumeForm.getRawValue() | json }}</pre>
       </div>
-    
+
+      <div class="actions">
+        <button type="button" (click)="addSkills()">+ Add Skill</button>
+        <!-- <button type="button" (click)="clearAllSkills()">Clear All</button> -->
+        <!-- <button type="button" (click)="resetForm()">Reset to Initial</button> -->
+      </div>
+
+      <hr />
+      <!-- <p>Total Skills Count: <strong>{{ skillCount$ | async }}</strong></p> -->
+      <pre>{{ resumeForm.getRawValue() | json }}</pre>
+      <pre>{{ skillCount$ | async }}</pre>
+    </div>
+
     
  
   `,
@@ -61,53 +59,127 @@ export class Home {
 
   private fb = inject(NonNullableFormBuilder);
 
+
   resumeForm = this.fb.group({
+    firstName: this.fb.control('', [Validators.required, Validators.min(3), Validators.max(20)]),
+    email: this.fb.control('', [Validators.required, Validators.email]),
     skills: this.fb.array<FormControl<string>>([
-      this.fb.control('', [Validators.required, Validators.min(3), Validators.max(20)])
+      this.fb.control('', [Validators.required])
     ])
   })
 
-  get skills() {
+
+  get skills(): FormArray<FormControl<string>> {
     return this.resumeForm.controls.skills;
   }
 
-  addSkill(): void {
-    const newSkill = this.fb.control('', Validators.required);
-    this.skills.push(newSkill);
+  skillCount$: Observable<number> = this.skills.valueChanges.pipe(
+    startWith(this.skills.value),
+    tap(() => console.log(this.skills.value)),
+    map(skills => skills.length)
+  )
+
+
+  addSkills(): void {
+
+    const newControl = this.fb.control('', [Validators.required, Validators.min(3)])
+    this.skills.push(newControl);
+
   }
 
 
-  removeSkill(index: number): void {
-    if (this.skills.length > 0) {
-      this.skills.removeAt(index);
-    }
+  removeSkill(index: number) {
+    this.skills.removeAt(index)
   }
 
-
-  clearAllSkills(): void {
+  clearSkills() {
     this.skills.clear();
-    this.addSkill()
   }
 
 
-  saveSkills(): void {
+  saveSkills() {
     if (this.resumeForm.valid) {
-      const finalData: string[] = this.resumeForm.getRawValue().skills
-      console.log('Sending skills to API:', finalData);
+      const data = this.resumeForm.getRawValue()
     } else {
-      console.error('Form is invalid');
+
     }
   }
 
 
 
 
+  // Form Task
+
+  // <form[formGroup]="resumeForm" >
+  // <div formArrayName='skills' >
+
+
+  //   <div * ngFor="let skill of skills.controls; let i = index" >
+
+  //     <input[formControl]='skill' placeholder = "e.g. Angular, RxJS, TypeScript" >
+
+  //       <button type="button"(click) = "removeSkill(i)"[disabled] = "skills.length === 1" >
+  //         Remove
+  //         </button>
+
+  //         < button type = "button"(click) = "skill.reset()" > Undo </>
+
+  //           </div>
+
+  //           < div class="actions" >
+  //             <button type="button"(click) = "addSkill()" > + Add Skill </button>
+  //               < button type = "button"(click) = "clearAllSkills()" class="danger" > Clear All </>
+  //                 < button type = "button"(click) = "saveSkills()" > Submit Skills </>
+  //                   </div>
+  //                   </div>
+  //                   </form>
+
+  //                   < div class="preview" >
+  //                     <strong>Data to send: </strong>
+  //                       < pre > {{ resumeForm.getRawValue() | json }}</>
+  //                         </div>
 
 
 
+  // private fb = inject(NonNullableFormBuilder);
+
+  // resumeForm = this.fb.group({
+  //   skills: this.fb.array<FormControl<string>>([
+  //     this.fb.control('', [Validators.required, Validators.min(3), Validators.max(20)])
+  //   ])
+  // })
+
+  // get skills() {
+  //   return this.resumeForm.controls.skills;
+  // }
+
+  // addSkill(): void {
+  //   const newSkill = this.fb.control('', Validators.required);
+  //   this.skills.push(newSkill);
+  // }
 
 
+  // removeSkill(index: number): void {
+  //   if (this.skills.length > 0) {
+  //     this.skills.removeAt(index);
+  //   }
+  // }
 
+
+  // clearAllSkills(): void {
+  //   this.skills.clear();
+  //   this.addSkill()
+  // }
+
+
+  // saveSkills(): void {
+  //   if (this.resumeForm.valid) {
+  //     const finalData: string[] = this.resumeForm.getRawValue().skills
+  //     console.log('Sending skills to API:', finalData);
+  //   } else {
+  //     console.error('Form is invalid');
+  //   }
+  // }
 
 
 
