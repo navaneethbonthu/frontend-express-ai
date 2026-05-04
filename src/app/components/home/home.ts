@@ -1,13 +1,6 @@
-import { Component, HOST_TAG_NAME, OnDestroy, OnInit, inject } from "@angular/core"
-import { Subject, Observable, exhaustMap, forkJoin, catchError, of, BehaviorSubject, combineLatest, map, switchMap, tap, filter, debounceTime, distinctUntilChanged, EMPTY, takeUntil, first, startWith } from "rxjs"
-import { HomeService } from "./home.service"
+import { Component } from "@angular/core";
+import { WorkBook } from "../work-book/work-book";
 
-import { AsyncPipe, CurrencyPipe, JsonPipe, NgIf, NgForOf } from "@angular/common"
-import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule } from "@angular/forms";
-import { TreeNodeComponent } from "../tree-node/tree-node";
-import { RepeatDirective } from "../../directives/infinitivescroll.directive";
-import { email, validate } from "@angular/forms/signals";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 
 
@@ -19,91 +12,26 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-home',
-  imports: [ReactiveFormsModule, NgForOf, JsonPipe, AsyncPipe],
+  imports: [WorkBook],
   template: `
-   <div [formGroup]="resumeForm">
-      <h3>Skills List</h3>
-<div>
-    <label>Full Name:</label>
-    <input formControlName="fullName" type="text" />
-  </div>
 
-  <hr />
-      <div formArrayName="skills">
-        <div *ngFor="let skill of skills.controls; let i = index" class="skill-row">
-          <input [formControl]="skill" placeholder="Enter skill (e.g. Angular)" />
+     
 
-          <button type="button" (click)="removeSkill(i)">Remove</button>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button type="button" (click)="addSkills()">+ Add Skill</button>
-        <!-- <button type="button" (click)="clearAllSkills()">Clear All</button> -->
-        <!-- <button type="button" (click)="resetForm()">Reset to Initial</button> -->
-      </div>
-
-      <hr />
-      <!-- <p>Total Skills Count: <strong>{{ skillCount$ | async }}</strong></p> -->
-      <pre>{{ resumeForm.getRawValue() | json }}</pre>
-      <pre>{{ skillCount$ | async }}</pre>
-    </div>
-
-    
- 
   `,
 
   styleUrl: './home.scss',
 })
 export class Home {
 
-  private fb = inject(NonNullableFormBuilder);
 
 
-  resumeForm = this.fb.group({
-    firstName: this.fb.control('', [Validators.required, Validators.min(3), Validators.max(20)]),
-    email: this.fb.control('', [Validators.required, Validators.email]),
-    skills: this.fb.array<FormControl<string>>([
-      this.fb.control('', [Validators.required])
-    ])
-  })
 
 
-  get skills(): FormArray<FormControl<string>> {
-    return this.resumeForm.controls.skills;
-  }
-
-  skillCount$: Observable<number> = this.skills.valueChanges.pipe(
-    startWith(this.skills.value),
-    tap(() => console.log(this.skills.value)),
-    map(skills => skills.length)
-  )
 
 
-  addSkills(): void {
-
-    const newControl = this.fb.control('', [Validators.required, Validators.min(3)])
-    this.skills.push(newControl);
-
-  }
 
 
-  removeSkill(index: number) {
-    this.skills.removeAt(index)
-  }
 
-  clearSkills() {
-    this.skills.clear();
-  }
-
-
-  saveSkills() {
-    if (this.resumeForm.valid) {
-      const data = this.resumeForm.getRawValue()
-    } else {
-
-    }
-  }
 
 
 
