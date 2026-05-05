@@ -1,37 +1,35 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
 import { WorkBook } from "../work-book/work-book";
-
-
-
-
-
-
-
-
+import { FormArray, FormControl, FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule } from "@angular/forms";
+import { catchError, delay, distinctUntilChanged, EMPTY, from, fromEvent, map, of, startWith, switchMap, tap, timer } from "rxjs";
+import { HomeService } from "./home.service";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FieldConfig } from "../work-book/interface";
+import { CommonModule } from "@angular/common";
+import { ScrollingModule } from "@angular/cdk/scrolling";
+import { LogEntry } from "./interface";
 
 
 @Component({
   selector: 'app-home',
-  imports: [WorkBook],
+  imports: [],
   template: `
 
-     
-
+   
   `,
 
   styleUrl: './home.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Home {
+export class Home   {
+
+ 
 
 
 
 
 
-
-
-
-
-
+}
 
 
 
@@ -534,7 +532,7 @@ export class Home {
   // }
 
 
-}
+
 
 
 

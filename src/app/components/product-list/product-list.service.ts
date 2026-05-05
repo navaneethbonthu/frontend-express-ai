@@ -26,7 +26,7 @@ export class ProductListService {
     categoryId: '',
     search: '',
     page: 1,
-    limit: 10
+    limit: 1
   });
 
   // --- 2. SELECTORS (Read-only for Components) ---
