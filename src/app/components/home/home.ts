@@ -1,111 +1,318 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from "@angular/core";
-import { WorkBook } from "../work-book/work-book";
-import { FormArray, FormControl, FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule } from "@angular/forms";
-import { catchError, delay, distinctUntilChanged, EMPTY, from, fromEvent, map, of, startWith, switchMap, tap, timer } from "rxjs";
-import { HomeService } from "./home.service";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FieldConfig } from "../work-book/interface";
-import { CommonModule } from "@angular/common";
-import { ScrollingModule } from "@angular/cdk/scrolling";
-import { LogEntry } from "./interface";
-
+import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
 
 @Component({
   selector: 'app-home',
   imports: [],
   template: `
 
-   
-  `,
 
+  `,
   styleUrl: './home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Home   {
+export class Home implements OnInit{
+
+  inventory = {
+    apples: 15,
+    bananas: 5,
+    oranges: 8,
+    pears: 20,
+    grapes: 2
+  };
+
+  ngOnInit(): void {
+    console.log(this.callFunction(this.inventory))
+  }
+
+
+  callFunction(Obj: any) :any{
+    const res = Object.entries(Obj).filter(([item, quantity]) => quantity as number < 10)
+    
+    return Object.fromEntries(res)
+
+  }
+
+
+}
+
+
+  
+
+  
+
+
+
+ 
+
+
+    
+
 
  
 
 
 
+// virtual scroll task
+
+// <cdk-virtual-scroll-viewport - scroll - viewport itemSize = "50" class="viewport" >
+
+//   <div * cdkVirtualFor= "let item of items;trackBy: trackById" class="log-item" >
+//     <span>{{ item.message }}</span>
+//       </div>
+//       </cdk-virtual-scroll-viewport>
+
+// private homeservice = inject(HomeService)
+
+// items: LogEntry[] = this.homeservice.getLargeDateset()
 
 
-}
+// trackById(index: number, item: LogEntry) {
+//   return item.id
+// }
+
+// getLargeDateset(): LogEntry[] {
+//   return Array.from({ length: 5000 }, (_, i) => ({
+//     id: i,
+//     message: `Item of ${i}`,
+//     timestamp: new Date(),
+//   }))
+// }
+
+
+// infiitevie scroll
+
+
+// <div appinfiniteScroll(scrollEvent)="onScrollEvent()" > </div>
+//   <ul>
+// @for (item of items; track $index) {
+//   <li>{{ item }
+// } </li>
+//         }
+// </ul>
+
+// @if (isLoding) {
+//   <div class="loader" > Loading more items...</div>
+// }
+// </div>
+
+// getItems(page: number): Observable < string[] > {
+//   return of(Array.from({ length: 10 }, (_, i) => `Item ${(page * 10) + i}`));
+// }
+
+//     private destroy$ = inject(DestroyRef)
+// @Output() scrollEvent = new EventEmitter()
+
+// ngOnInit(): void {
+//   fromEvent(window, 'scroll').pipe(
+//     throttleTime(200),
+//     map(() => this.getBottomValue()),
+//     filter((value) => value < 150),
+//     takeUntilDestroyed(this.destroy$),
+//   ).subscribe(() => {
+//     this.scrollEvent.emit()
+//   })
+// }
+
+
+//     private getBottomValue(): number {
+//   // const scrollHeight = document.scrollingElement?.scrollHeight;
+
+//   const scrollHeight = document.documentElement.scrollHeight;
+
+//   const scrollTop = document.documentElement?.scrollTop || window.scrollY
+
+//   return scrollHeight - (scrollTop + window.innerHeight)
+
+// }
+
+
+//  private scrollSubject = new Subject<void>()
+//   private homeService = inject(HomeService);
+// page = 1
+
+// items = signal<string[]>([])
+// isLoading = signal<boolean>(false)
+
+// ngOnInit(): void {
+//   this.scrollSubject.pipe(
+//     tap(() => this.isLoading.set(true)),
+//     exhaustMap(() => {
+//       return this.homeService.getItems(this.page).pipe(
+//         tap((newItems: string[]) => {
+//           this.items.update((state) => [...state, ...newItems]);
+//           this.page++;
+//         }),
+//         catchError(() => {
+//           this.isLoading.set(false)
+//           return EMPTY
+//         }),
+//         // 5. Turn off loading regardless of success or error
+//         finalize(() => this.isLoading.set(false))
+//       )
+//     }),
+//     takeUntilDestroyed()
+//   ).subscribe()
+// }
+
+// onScrollEvent() {
+//   this.scrollSubject.next()
+// }
+
+
+
+
+// Stock data polling task
+  
+// <div class="dashbord" * ngIf="viewModel$ | async as vm" >
+//   <span * ngIf="vm.isPolling" > {{ vm.isPolling ? 'Polling - active' : 'tabs - hidden' }}</span>
+//     <ul>
+// @for (item of vm.stocks; track $index) {
+//   <li>
+//     {{ item.symbol }
+// } , { { item.timestamp | date: 'mediumTime' } }, { { item.price | number : '1.2-2' } } , { { item.change | number : '1.2-2' } }
+// </li>
+//       }
+// </ul>
+//   </div>
+
+
+// export interface stockUpdate {
+//   symbol: string,
+//   timestamp: Date,
+//   price: number,
+//   change: number,
+// }
+
+
+// export interface ViewModel {
+//   stocks: stockUpdate[],
+//   isPolling: boolean;
+// }
+
+// getStockPrices(): Observable < stockUpdate[] > {
+//   return of([
+//     { symbol: 'AAPL', price: 150 + Math.random() * 10, change: Math.random(), timestamp: new Date() },
+//     { symbol: 'TSLA', price: 200 + Math.random() * 20, change: Math.random(), timestamp: new Date() },
+//     { symbol: 'GOOGL', price: 2800 + Math.random() * 50, change: Math.random(), timestamp: new Date() },
+//   ]).pipe(delay(500));
+// }
+
+
+//  private destroy = inject(DestroyRef);
+//   private homeService = inject(HomeService)
+
+//   // stocks$: Observable<stockUpdate[]> | null = null;
+
+//   private visibility$ = fromEvent(document, 'visibilitychange').pipe(
+
+//     map(() => document.visibilityState === 'visible'),
+
+//     startWith(document.visibilityState === 'visible'),
+
+//     distinctUntilChanged(),
+
+//     // tap(visible => this.isPolling = visible)
+
+//     shareReplay(1)
+
+//   )
+
+
+//   private stocks$: Observable<stockUpdate[]> = this.visibility$.pipe(
+//     switchMap((isVisible) => isVisible ? timer(0, 5000) : EMPTY),
+
+//     switchMap(() => this.homeService.getStockPrices().pipe(
+//       catchError((err) => {
+//         console.log('Error', err)
+//         return EMPTY
+//       })
+//     )),
+//     startWith([])
+//   )
+  
+
+//   readonly viewModel$: Observable<ViewModel> = combineLatest({
+//     stocks: this.stocks$,
+//     isPolling: this.visibility$
+//   })
 
 
 
 
   // Form Task
 
-  // <form[formGroup]="resumeForm" >
-  // <div formArrayName='skills' >
+// export interface UserProfile {
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+//   skills: string[]; // Add this
+
+// }
+
+//   /private fb = inject(NonNullableFormBuilder);
+//   private homeService = inject(HomeService)
+// saveStatus = signal<'Idle' | 'Saving...' | 'Saved' | 'Error'>('Idle');
+//   private destroyRef = inject(DestroyRef)
 
 
-  //   <div * ngFor="let skill of skills.controls; let i = index" >
+// resumeForm = this.fb.group({
+//   firstName: ['', [Validators.required, Validators.minLength(2)]],
+//   lastName: ['', [Validators.required, Validators.minLength(2)]],
+//   email: ['', [Validators.required, Validators.email]],
+//   skills: this.fb.array([
+//     this.fb.control('', [Validators.required, Validators.minLength(2)])
+//   ]),
+// })
 
-  //     <input[formControl]='skill' placeholder = "e.g. Angular, RxJS, TypeScript" >
-
-  //       <button type="button"(click) = "removeSkill(i)"[disabled] = "skills.length === 1" >
-  //         Remove
-  //         </button>
-
-  //         < button type = "button"(click) = "skill.reset()" > Undo </>
-
-  //           </div>
-
-  //           < div class="actions" >
-  //             <button type="button"(click) = "addSkill()" > + Add Skill </button>
-  //               < button type = "button"(click) = "clearAllSkills()" class="danger" > Clear All </>
-  //                 < button type = "button"(click) = "saveSkills()" > Submit Skills </>
-  //                   </div>
-  //                   </div>
-  //                   </form>
-
-  //                   < div class="preview" >
-  //                     <strong>Data to send: </strong>
-  //                       < pre > {{ resumeForm.getRawValue() | json }}</>
-  //                         </div>
-
-
-
-  // private fb = inject(NonNullableFormBuilder);
-
-  // resumeForm = this.fb.group({
-  //   skills: this.fb.array<FormControl<string>>([
-  //     this.fb.control('', [Validators.required, Validators.min(3), Validators.max(20)])
-  //   ])
-  // })
-
-  // get skills() {
-  //   return this.resumeForm.controls.skills;
-  // }
-
-  // addSkill(): void {
-  //   const newSkill = this.fb.control('', Validators.required);
-  //   this.skills.push(newSkill);
-  // }
+// ngOnInit(): void {
+//   this.resumeForm.valueChanges.pipe(
+//     debounceTime(1000),
+//     filter(() => this.resumeForm.valid),
+//     map(() => this.resumeForm.getRawValue() as UserProfile),
+//     distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+//     tap(() => this.saveStatus.set('Saving...')),
+//     switchMap((formValues: UserProfile) => {
+//       return this.homeService.saveData(formValues).pipe(
+//         catchError(() => {
+//           this.saveStatus.set('Error');
+//           return of({ success: false });
+//         })
+//       );
+//     }),
+//     takeUntilDestroyed(this.destroyRef) // Good practice to prevent leaks
+//   ).subscribe((response) => {
+//     if (response.success) {
+//       this.saveStatus.set('Saved');
+//     }
+//   });
+// }
 
 
-  // removeSkill(index: number): void {
-  //   if (this.skills.length > 0) {
-  //     this.skills.removeAt(index);
-  //   }
-  // }
+//   get skills(): FormArray < FormControl < string >> {
+//   return this.resumeForm.controls.skills
+// }
 
 
-  // clearAllSkills(): void {
-  //   this.skills.clear();
-  //   this.addSkill()
-  // }
+// addSkils() {
+//   const newControl = this.fb.control('', [Validators.required, Validators.minLength(2)])
+//   this.skills.push(newControl)
+// }
 
+// removeSkills(i: number) {
+//   this.skills.removeAt(i)
+// }
 
-  // saveSkills(): void {
-  //   if (this.resumeForm.valid) {
-  //     const finalData: string[] = this.resumeForm.getRawValue().skills
-  //     console.log('Sending skills to API:', finalData);
-  //   } else {
-  //     console.error('Form is invalid');
-  //   }
-  // }
+// clearSkills() {
+//   this.skills.clear();
+// }
+// saveProfile(data: UserProfile): Observable < { success: boolean } > {
+//   console.log('%c [API] Saving to server...', 'color: orange', data);
+
+//   return of({ success: true }).pipe(
+//     delay(5000),
+//     tap(() => console.log('%c [API] Save Complete!', 'color: green'))
+//   );
+// }
 
 
 
@@ -420,7 +627,7 @@ export class Home   {
 
   // ngOnInit(): void {
 
-  // }
+  // } 
 
   // toggle() {
   //   if (this.node.children) {
@@ -453,83 +660,6 @@ export class Home   {
 
 
 
-
-
-  // Task 1
-
-  // template logic
-
-  //  <input[formControl]="searchControl" placeholder = "search here..." >
-  // <div * ngIf="isLoading" > Loding....</div>
-
-
-  //   < ul * ngIf="results$ | async as results" >
-  //     li * ngFor="let item of results" > {{ item.name }}</li>
-  //    </ul>
-
-  // service logic 
-
-  // apiUrl = ''
-
-  // private http = inject(HttpClient)
-
-
-  // search(term: string): Observable<any[]> {
-
-  //   if (!term.trim()) {
-  //     return of([])
-  //   }
-
-  //   const params = new HttpParams().set('q', term)
-
-  //   return this.http.get<any[]>(`${this.apiUrl}`, { params })
-
-  // }
-
-  // component Logic
-
-
-  // searchControl = new FormControl('');
-
-  // results$!: Observable<any>;
-
-  // isLoading: boolean = false;
-
-  // constructor(private homeService: HomeService) { }
-
-
-  // ngOnInit(): void {
-  //   this.results$ = this.searchControl.valueChanges.pipe(
-  //     debounceTime(300),
-  //     distinctUntilChanged(),
-
-  //     tap((term) => {
-  //       if (term!.length >= 3) {
-  //         this.isLoading = true;
-  //       }
-  //     }),
-
-
-  //     switchMap(term => {
-  //       if (term!.length <= 3) {
-  //         return of([]);
-  //       }
-
-  //       return this.homeService.search(term!).pipe(
-  //         tap(() => {
-  //           this.isLoading = false;
-  //         }),
-
-  //         catchError(() => {
-  //           this.isLoading = false;
-  //           // show toast
-  //           return EMPTY
-  //         })
-  //       )
-  //     })
-
-  //   )
-  // }
 
 
 

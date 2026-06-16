@@ -1,17 +1,11 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { HomeService } from '../home/home.service';
-import { TreeNodeService } from './tree-node.service';
-import { Observable, Subject } from 'rxjs';
+import { CommonModule } from "@angular/common";
+import { Component, inject, Input } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 
 
-export interface TreeNode {
-  id: string,
-  label: string,
-  children?: TreeNode[],
-  isOpen?: boolean
-}
+
+
+
 
 
 @Component({
@@ -19,13 +13,17 @@ export interface TreeNode {
   imports: [FormsModule, CommonModule],
   template: `
 
-  
-   
+
+     
+      
+    
 
   `,
   styleUrl: './tree-node.scss',
 })
 export class TreeNodeComponent {
+
+
 
 
 

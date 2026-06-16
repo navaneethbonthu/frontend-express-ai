@@ -1,27 +1,31 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
-import { HomeService } from '../home/home.service';
-import { Observable } from 'rxjs';
-import { AsyncPipe, CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, } from '@angular/forms';
-import { FieldConfig } from './interface';
-import { DynamicPathValidators } from './utils';
+import { ChangeDetectionStrategy, Component, inject, Input, OnInit } from "@angular/core";
+import { FormGroup, FormsModule, NonNullableFormBuilder, ValidatorFn, ReactiveFormsModule } from "@angular/forms";
+import { CommonModule } from "@angular/common";
 
 
 
 
 @Component({
   selector: 'app-work-book',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule],
   template: `
 
- 
-    
-
+   
+       
 
   `,
   styleUrl: './work-book.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkBook {
+
+
+
+
+
+
+
+
 
 
 }

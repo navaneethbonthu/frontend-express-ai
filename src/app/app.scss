@@ -2,3 +2,8 @@
   min-height: calc(100vh - var(--header-height) - 400px); // Adjust based on footer height
   padding: 2rem 0;
 }
+
+* {
+  margin: 20;
+  padding: 20;
+}

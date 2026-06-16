@@ -69,6 +69,7 @@ export class AuthService {
 
 
   getCsrfToken(): Observable<any> {
+
     return this.http.get(`${this.API}/csrf-token`);
   }
 
@@ -78,6 +79,7 @@ export class AuthService {
     return this.getCsrfToken().pipe(
       switchMap(() => this.http.get<User>(`${this.API}/me`)),
       tap(user => {
+        // console.log('csrf - token call check auth')
         this.currentUser.set(user);
         console.log('Session restored:', user.email);
       }),

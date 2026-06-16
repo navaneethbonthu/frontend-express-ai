@@ -36,11 +36,12 @@ export const appConfig: ApplicationConfig = {
 
 
     provideHttpClient(
-      withInterceptors([authInterceptor, encryptionInterceptor, ErrorInterceptor]), // Register it here  
+      withInterceptors([authInterceptor, ErrorInterceptor]), // Register it here
+      // encryptionInterceptor,
 
       withXsrfConfiguration({
-        cookieName: 'XSRF-TOKEN',     // Backend cookieName
-        headerName: 'x-xsrf-token',   // Backend getCsrfTokenFromRequest
+        cookieName: 'X-CSRF-TOKEN',     // Backend cookieName
+        headerName: 'x-csrf-token',   // Backend getCsrfTokenFromRequest
       })
 
       // 1. Register the NgRx Store and your reducers

@@ -2,7 +2,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, DestroyRef, inject, Injectable, OnDestroy, Signal, signal } from '@angular/core';
 import { ApiStatus, Filter, Pagination, Product, ProductResponse, ProductState } from './interfaces';
 import { catchError, debounceTime, distinctUntilChanged, EMPTY, Observable, switchMap, tap } from 'rxjs';
-import { io, Socket } from 'socket.io-client';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 @Injectable({
