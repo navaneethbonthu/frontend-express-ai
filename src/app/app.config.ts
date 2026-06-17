@@ -58,10 +58,26 @@ export const appConfig: ApplicationConfig = {
       // Use inject() to get your service
       const authService = inject(AuthService);
 
-      console.log('App starting: Fetching CSRF and User...');
+      console.log('App starting now: Fetching CSRF and User...');
 
       // Return a Promise (Angular waits for this to resolve)
-      return lastValueFrom(authService.checkAuth());
+      return lastValueFrom(authService.checkAuth())
+        .then(user => {
+          console.log('Session restored successfully.,', user);
+          // Session restored successfully
+        })
+        .catch(err => {
+          // 1. Log the reason (for debugging)
+          console.log('Initialization: No active session found.');
+
+          // 2. Set the state so the UI knows to show "Login"
+          authService.currentUser.set(null);
+
+          // 3. IMPORTANT: Return a value (like null or true)
+          // This "resolves" the promise so Angular knows it's safe to start.
+          return null;
+
+        });
     }),
 
     provideStore(appReducers),

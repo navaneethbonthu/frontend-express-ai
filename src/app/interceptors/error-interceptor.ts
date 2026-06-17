@@ -7,6 +7,15 @@ export const ErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
+
+
+            // INDUSTRY STANDARD: Skip 401s
+            // We don't want to show "Server Error" or "Unauthorized" popups
+            // if the authInterceptor is currently trying to fix the problem!
+            if (error.status === 401) {
+                return throwError(() => error);
+            }
+
             let errorMessage = '';
             if (error.error instanceof ErrorEvent) {
                 // Client-side network error

@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/cor
   selector: 'app-home',
   imports: [],
   template: `
-
+    <h1>Home Page</h1>
 
   `,
   styleUrl: './home.scss',

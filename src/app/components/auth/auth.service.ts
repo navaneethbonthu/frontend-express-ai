@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { BehaviorSubject, catchError, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, finalize, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
 import { AuthResponse, User } from './interface';
 import { Router } from '@angular/router';
 
@@ -55,14 +55,18 @@ export class AuthService {
 
 
   logout(): void {
-    this.http.post(`${this.API}/logout`, {}).subscribe({
-      next: () => {
-        this.currentUser.set(null);
-        // After logout, you might want to get an "anonymous" token again,
-        // but navigating to login usually triggers a refresh anyway.
+    // 1. Immediately clear the local state (Signals/UI)
+    this.currentUser.set(null);
+
+    this.http.post(`${this.API}/logout`, {}).pipe(
+
+      finalize(() => {
+        // 3. Always redirect to login
         this.router.navigate(['/login']);
-      },
-      error: (error) => console.error('Logout failed', error)
+      })
+    ).subscribe({
+      next: () => console.log('Backend logout successful'),
+      error: (err) => console.warn('Backend logout failed (likely expired), but local session cleared.', err)
     });
   }
 
@@ -81,12 +85,12 @@ export class AuthService {
       tap(user => {
         // console.log('csrf - token call check auth')
         this.currentUser.set(user);
-        console.log('Session restored:', user.email);
+        console.log('Session restored and calling checkAuth method:', user.email);
       }),
-      catchError(() => {
-        this.currentUser.set(null);
-        return of(null);
-      })
+      // catchError(() => {
+      //   this.currentUser.set(null);
+      //   return of(null);
+      // })
     );
   }
 
