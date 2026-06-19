@@ -55,7 +55,9 @@ export class ProductManagementComponent implements OnInit {
   }
 
   openAddProductOverlay(productToEdit: Product | null = null) {
-    this.editingProduct.set(productToEdit);
+    console.log('openAddProductOverlay clicked');
+
+    // this.editingProduct.set(productToEdit);
     this.showAddProductPanel.set(true);
   }
 

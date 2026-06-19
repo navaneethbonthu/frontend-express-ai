@@ -27,37 +27,23 @@ import { CategoryService } from '../category-list/category-list.service';
 export default class ProductListComponent implements OnInit {
   protected productListService = inject(ProductListService);
   protected CategoryService = inject(CategoryService);
-  title: string = 'Our Products';
-
-  category = signal<string | null>(null);
-  selectedCategory = computed(() => this.category());
-  cartList = signal<Product[]>([]);
-  searchQuery = signal<string>(''); // New Signal
-
   public cartService = inject(CartService);
 
-  constructor() {
-
-    effect(() => {
-      const currentCategory = this.category();
-
-    });
-  }
+  selectedCategory = signal<string | null>(null);
 
   ngOnInit() {
-    // console.log('Categories:', this.productListService._Categories());
+    this.CategoryService.getAllCategories()
   }
 
   onCategoryChange(e: Event) {
     const selectElement = e.target as HTMLSelectElement;
     const categoryId = selectElement.value;
-    this.category.set(categoryId);
-    console.log('Selected category:', categoryId);
+    this.productListService.setCategory(categoryId)
   }
   onSearchChanges(e: Event) {
     const val = (e.target as HTMLInputElement).value;
-    this.searchQuery.set(val);
-    console.log('Search Value:', val);
+    this.productListService.setSearch(val)
+
   }
 
   addToCart(product: Product) {

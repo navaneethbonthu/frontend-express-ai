@@ -1,38 +1,34 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
+import { Component, ChangeDetectionStrategy, OnInit, inject, DestroyRef, signal } from "@angular/core";
+import { TitleStrategy } from "@angular/router";
+import { BehaviorSubject, catchError, combineLatest, debounceTime, distinctUntilChanged, EMPTY, filter, fromEvent, map, Observable, scan, shareReplay, startWith, Subject, switchMap, tap, timer } from "rxjs";
+import { HomeService} from "./home.service";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { AsyncPipe, DecimalPipe } from "@angular/common";
+import { FormArray, FormControl, FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+
+
+
+
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [ ReactiveFormsModule],
   template: `
     <h1>Home Page</h1>
+    
 
   `,
   styleUrl: './home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Home implements OnInit{
+export class Home {
 
-  inventory = {
-    apples: 15,
-    bananas: 5,
-    oranges: 8,
-    pears: 20,
-    grapes: 2
-  };
+  // isRed = signal<boolean>(false)
+  homeService = inject(HomeService);
 
-  ngOnInit(): void {
-    console.log(this.callFunction(this.inventory))
-  }
+  
 
-
-  callFunction(Obj: any) :any{
-    const res = Object.entries(Obj).filter(([item, quantity]) => quantity as number < 10)
-    
-    return Object.fromEntries(res)
-
-  }
-
-
+ 
 }
 
 

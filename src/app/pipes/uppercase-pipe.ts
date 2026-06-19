@@ -11,10 +11,10 @@ export class CustomUpperCasePipe implements PipeTransform {
             return '';
         }
 
-        // const prefix = args[0] || ''; // First argument
-        // const suffix = args[1] || ''; // Second argument
+        const prefix = args[0] || ''; // First argument
+        const suffix = args[1] || ''; // Second argument
 
-        return `${value.toUpperCase()}`.trim();
+        return `${prefix} ` + `${value.toUpperCase()}`.trim() + ` ${suffix}`;
     }
 
 }

@@ -16,7 +16,7 @@
 </div>
 
 @if (showAddProductPanel()) {
-<app-overlay-panel [isVisible]="showAddProductPanel()" [title]="editingProduct() ? 'Edit Product' : 'Add New Product'"
+<app-overlay-panel [isVisible]="true" [title]="editingProduct() ? 'Edit Product' : 'Add New Product'"
     (close)="closeAddProductOverlay()">
     <app-add-product-form [editingProduct]="editingProduct()"
         (productAdded)="onProductAdded($event)"></app-add-product-form>

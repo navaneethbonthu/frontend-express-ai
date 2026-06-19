@@ -25,7 +25,7 @@ export class ProductListService {
     categoryId: '',
     search: '',
     page: 1,
-    limit: 1
+    limit: 50
   });
 
   // --- 2. SELECTORS (Read-only for Components) ---
@@ -85,7 +85,7 @@ export class ProductListService {
 
   // --- 5. PRIVATE HELPERS ---
 
-  private fetchProducts(filter: Filter): Observable<ProductResponse> {
+  fetchProducts(filter: Filter): Observable<ProductResponse> {
     let params = new HttpParams()
       .set('page', filter.page.toString())
       .set('limit', filter.limit.toString());
