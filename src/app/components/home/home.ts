@@ -1,32 +1,77 @@
-import { Component, ChangeDetectionStrategy, OnInit, inject, DestroyRef, signal } from "@angular/core";
-import { TitleStrategy } from "@angular/router";
-import { BehaviorSubject, catchError, combineLatest, debounceTime, distinctUntilChanged, EMPTY, filter, fromEvent, map, Observable, scan, shareReplay, startWith, Subject, switchMap, tap, timer } from "rxjs";
-import { HomeService} from "./home.service";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AsyncPipe, DecimalPipe } from "@angular/common";
-import { FormArray, FormControl, FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
+import { ReactiveFormsModule } from "@angular/forms";
+import { HomeService } from "./home.service";
+import { StorageService } from "../../services/storage.service";
+import { AsyncPipe } from "@angular/common";
 
 
 
+interface UserSettings {
+  theme: 'light' | 'dark';
+  fontSize: number;
+}
 
 
 @Component({
   selector: 'app-home',
-  imports: [ ReactiveFormsModule],
+  imports: [ReactiveFormsModule, AsyncPipe],
   template: `
     <h1>Home Page</h1>
-   
+    
+<div [class.dark-theme] = darkMode >
 
+<button (click)=toggleTheme()> Switch to {{ darkMode ? 'Light' : 'Dark' }} Mode</button>
+
+ <p>Current Theme stored: {{ (storage$ | async)?.theme || 'light' }}</p>
+
+</div>
+
+
+    
   `,
   styleUrl: './home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Home {
+export class Home implements OnInit {
 
   // isRed = signal<boolean>(false)
   homeService = inject(HomeService);
+  storageService = inject(StorageService);
 
-  
+  theme : string = ""
+  darkMode: boolean = false;
+
+
+  storage$ = this.storageService.watchStorage<UserSettings>('user_settings');
+
+ 
+
+  ngOnInit(): void {
+    const saved = this.storageService.getItem<UserSettings>('user_settings')
+
+    if (saved) {
+      this.darkMode = saved.theme === 'dark'
+    }
+
+
+  }
+
+
+  toggleTheme() {
+    this.darkMode = !this.darkMode
+
+    const newSettings: UserSettings = {
+      theme: this.darkMode ? 'dark' : 'light',
+      fontSize: 16
+    }
+
+    this.storageService.setItem<UserSettings>('user_settings', newSettings)
+
+  }
+
+
+
+ 
 
  
 }
