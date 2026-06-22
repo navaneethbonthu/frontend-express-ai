@@ -15,7 +15,7 @@ import { FormArray, FormControl, FormGroup, FormsModule, NonNullableFormBuilder,
   imports: [ ReactiveFormsModule],
   template: `
     <h1>Home Page</h1>
-    
+   
 
   `,
   styleUrl: './home.scss',

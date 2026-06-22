@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CartService } from '../components/cart/cart.service';
 import { AuthService } from '../components/auth/auth.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
+import { ThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -15,6 +16,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 export class HeaderComponent {
   cartService = inject(CartService);
   authService = inject(AuthService);
+  themeService = inject(ThemeService);
 
   // currentUser$ = this.authService.currentUser();
   // isAdmin$ = this.authService.isAdmin();
