@@ -2,29 +2,20 @@ import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/cor
 import { ReactiveFormsModule } from "@angular/forms";
 import { HomeService } from "./home.service";
 import { StorageService } from "../../services/storage.service";
-import { AsyncPipe } from "@angular/common";
+import { AsyncPipe, CurrencyPipe } from "@angular/common";
 
 
 
-interface UserSettings {
-  theme: 'light' | 'dark';
-  fontSize: number;
-}
+
 
 
 @Component({
   selector: 'app-home',
-  imports: [ReactiveFormsModule, AsyncPipe],
+  imports: [ReactiveFormsModule, CurrencyPipe],
   template: `
     <h1>Home Page</h1>
     
-<div [class.dark-theme] = darkMode >
-
-<button (click)=toggleTheme()> Switch to {{ darkMode ? 'Light' : 'Dark' }} Mode</button>
-
- <p>Current Theme stored: {{ (storage$ | async)?.theme || 'light' }}</p>
-
-</div>
+     
 
 
     
@@ -32,45 +23,15 @@ interface UserSettings {
   styleUrl: './home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Home implements OnInit {
-
-  // isRed = signal<boolean>(false)
-  homeService = inject(HomeService);
-  storageService = inject(StorageService);
-
-  theme : string = ""
-  darkMode: boolean = false;
-
-
-  storage$ = this.storageService.watchStorage<UserSettings>('user_settings');
+export class Home {
 
  
+  homeService = inject(HomeService);
+ 
 
-  ngOnInit(): void {
-    const saved = this.storageService.getItem<UserSettings>('user_settings')
+  
 
-    if (saved) {
-      this.darkMode = saved.theme === 'dark'
-    }
-
-
-  }
-
-
-  toggleTheme() {
-    this.darkMode = !this.darkMode
-
-    const newSettings: UserSettings = {
-      theme: this.darkMode ? 'dark' : 'light',
-      fontSize: 16
-    }
-
-    this.storageService.setItem<UserSettings>('user_settings', newSettings)
-
-  }
-
-
-
+ 
  
 
  

@@ -1,8 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, catchError, finalize, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
-import { AuthResponse, User } from './interface';
+import { AuthResponse, CsrfResponse, User } from './interface';
 import { Router } from '@angular/router';
+
+
+
 
 @Injectable({
   providedIn: 'root',
@@ -72,9 +75,8 @@ export class AuthService {
 
 
 
-  getCsrfToken(): Observable<any> {
-
-    return this.http.get(`${this.API}/csrf-token`);
+  getCsrfToken(): Observable<CsrfResponse> {
+    return this.http.get<CsrfResponse>(`${this.API}/csrf-token`);
   }
 
 

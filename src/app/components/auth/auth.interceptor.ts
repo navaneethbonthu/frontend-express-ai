@@ -9,6 +9,14 @@ const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
 
+  // // 1. Check if the request is going to our backend API
+  // const isApiUrl = req.url.startsWith(environment.apiUrl);
+
+  // // If it's NOT a request to our API (e.g., Google Maps, Cloudinary), just pass it through
+  // if (!isApiUrl) {
+  //   return next(req);
+  // }
+
   return next(req.clone({ withCredentials: true })).pipe(
     catchError((error) => {
       // 1. Is it a 401?

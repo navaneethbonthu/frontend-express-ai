@@ -58,11 +58,12 @@ export const appConfig: ApplicationConfig = {
       // Use inject() to get your service
       const authService = inject(AuthService);
 
-      console.log('App starting now: Fetching CSRF and User...');
+      console.log('%c App starting now: Fetching CSRF Token and User details  ', 'color: green');
 
       // Return a Promise (Angular waits for this to resolve)
       return lastValueFrom(authService.checkAuth())
         .then(user => {
+          // authService.currentUser.set(user);
           console.log('Session restored successfully.,', user);
           // Session restored successfully
         })
@@ -80,13 +81,13 @@ export const appConfig: ApplicationConfig = {
         });
     }),
 
-    provideStore(appReducers),
+    // provideStore(appReducers),
 
     // 2. Register DevTools (Only runs in development mode)
-    provideStoreDevtools({
-      maxAge: 25, // Keeps track of the last 25 actions
-      logOnly: !isDevMode(),
-    })
+    // provideStoreDevtools({
+    //   maxAge: 25, // Keeps track of the last 25 actions
+    //   logOnly: !isDevMode(),
+    // })
 
   ],
 };
