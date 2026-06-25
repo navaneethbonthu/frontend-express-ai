@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, catchError, finalize, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
-import { AuthResponse, CsrfResponse, User } from './interface';
+import { AuthResponse, CsrfResponse, RefreshResponse, User } from './interface';
 import { Router } from '@angular/router';
 
 
@@ -81,7 +81,7 @@ export class AuthService {
 
 
 
-  checkAuth(): Observable<any> {
+  checkAuth(): Observable<User> {
     return this.getCsrfToken().pipe(
       switchMap(() => this.http.get<User>(`${this.API}/me`)),
       tap(user => {
@@ -91,14 +91,15 @@ export class AuthService {
       }),
       // catchError(() => {
       //   this.currentUser.set(null);
-      //   return of(null);
+      //   return aof(null);
       // })
     );
   }
 
-  refreshAccessToken(): Observable<any> {
-    return this.http.post(`${this.API}/refresh`, {}, { withCredentials: true }).pipe(
-      // Important: refresh CSRF after rotating the session
+  refreshAccessToken(): Observable<CsrfResponse> {
+    return this.http.post<RefreshResponse>(`${this.API}/refresh`, {}).pipe(
+      // Important: refresh CSRF after rotating the session 
+      // { withCredentials: true }
       switchMap(() => this.getCsrfToken())
     );
   }

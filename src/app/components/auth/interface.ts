@@ -17,3 +17,7 @@ export interface CsrfResponse {
   status: string;
   token: string;
 }
+
+export interface RefreshResponse {
+  status: string;
+}
