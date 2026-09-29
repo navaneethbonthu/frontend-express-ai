@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, Input } from "@angular/core";
+import { Component, inject, Input, ChangeDetectionStrategy, Output, EventEmitter, input, output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+
 
 
 
@@ -14,14 +15,21 @@ import { FormsModule } from "@angular/forms";
   template: `
 
 
-     
-      
+
+
+
+
     
 
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './tree-node.scss',
 })
 export class TreeNodeComponent {
+
+
+
+
 
 
 

@@ -2,7 +2,7 @@ import { APP_INITIALIZER, ApplicationConfig, ErrorHandler, inject, isDevMode, pr
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { HttpClient, provideHttpClient, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors, withXsrfConfiguration, withXhr } from '@angular/common/http';
 import { authInterceptor } from './components/auth/auth.interceptor';
 import { AuthService } from './components/auth/auth.service';
 import { lastValueFrom } from 'rxjs';
@@ -35,7 +35,7 @@ export const appConfig: ApplicationConfig = {
     },
 
 
-    provideHttpClient(
+    provideHttpClient(withXhr(), 
       withInterceptors([authInterceptor, ErrorInterceptor]), // Register it here
       // encryptionInterceptor,
 

@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="info-section">
-                    <small>Member since: {{ authService.currentUser()?.createdAt | date:'longDate' }}</small>
+                    <small>Member since: {{ $safeNavigationMigration(authService.currentUser()?.createdAt) | date:'longDate' }}</small>
                 </div>
 
                 <div class="actions">

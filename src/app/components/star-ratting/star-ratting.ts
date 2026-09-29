@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, forwardRef, Input, Output, signal } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -15,6 +15,7 @@ import { single } from 'rxjs';
   templateUrl: './star-ratting.html',
   styleUrl: './star-ratting.scss',
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

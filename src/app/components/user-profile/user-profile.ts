@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../auth/auth.service';
 import { CommonModule } from '@angular/common';
@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-user-profile',
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './user-profile.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './user-profile.scss',
 })
 export class UserProfile {

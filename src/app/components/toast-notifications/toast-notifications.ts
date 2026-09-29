@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CartComponent } from "../cart/cart.component";
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -13,6 +13,7 @@ export interface Toast {
   selector: 'app-toast-notifications',
   imports: [CartComponent, ReactiveFormsModule, FormsModule],
   templateUrl: './toast-notifications.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './toast-notifications.scss',
 })
 export class ToastNotifications implements OnInit {

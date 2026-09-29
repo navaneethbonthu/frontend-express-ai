@@ -1,14 +1,17 @@
-import { HttpClient } from "@angular/common/http";
-import { computed, inject, Injectable, signal } from "@angular/core";
-import { Observable } from "rxjs";
+import { Injectable, OnInit, signal } from "@angular/core";
+import { BehaviorSubject, delay, distinctUntilChanged, map, Observable, of, Subject } from "rxjs";
 
 
 
 
-@Injectable({ providedIn: 'root' })
-export class HomeService {
 
+@Injectable({
+    providedIn: 'root'
+})
+export class HomeService implements OnInit {
+    ngOnInit(): void {
 
+    }
 
 
 

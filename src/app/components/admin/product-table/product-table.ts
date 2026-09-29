@@ -1,10 +1,11 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { ApiStatus, Product } from '../../product-list/interfaces';
 
 @Component({
   selector: 'app-product-table',
   imports: [],
   templateUrl: './product-table.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './product-table.scss',
 })
 export class ProductTable {
